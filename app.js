@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -19,6 +20,59 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+//passportに必要
+//npm install passport
+//npm install passport-local
+//npm install express-session
+var passport = require('passport');
+
+app.use(session({ 
+    resave:false,
+    saveUninitialized:false,
+    rolling: true, //cookieが有効期限が都度更新されるか
+    cookie: {maxAge:1 * 60 * 1000},  //有効期限
+    secret: 'passport test' }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+var LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password',
+    passReqToCallback: true,
+    session: true,
+}, function (req, username, password, done) {
+    const filename = 'mylogin.txt';
+    const fs = require('fs');
+    var folPath = path.resolve() + '/public/login/' + filename
+    let text = fs.readFileSync(folPath, "utf-8");
+    
+    process.nextTick(function () {
+        async function funcSelect() {
+            if (username == text && password == '123') {
+                //return done(null, username)
+                var kaihatsu = 'zzz';
+                return done(null, { username: username, myKey: kaihatsu});
+                //return done(null, { username: username, password: password, myKey: kaihatsu});
+            } else {
+                console.log("login error")
+                return done(null, false, { message: 'パスワードが正しくありません。' })
+            }
+        }
+        funcSelect();  
+    })
+}));
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, user);
+});
+//passportここまで
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
