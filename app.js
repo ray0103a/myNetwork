@@ -8,6 +8,10 @@ const session = require('express-session')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var usersRouter = require('./routes/login');
+var barcode3Router = require('./routes/barcode3');
+var qrtestRouter = require('./routes/qrtest');
+var qrtest2Router = require('./routes/qrtest2');
+
 
 var app = express();
 
@@ -77,6 +81,9 @@ passport.deserializeUser(function(user, done) {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', usersRouter);
+app.use('/qrtest', qrtestRouter);
+app.use('/qrtest2', qrtest2Router);
+app.use('/barcode3', barcode3Router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+<style>
+#photo-area.viewport {
+    width:320px;
+    height: 240px;
+}
+#photo-area.viewport canvas, video {
+   float: left;
+    width:320px;
+   height: 240px;
+}
+#photo-area.viewport canvas.drawingBuffer, video.drawingBuffer {
+   margin-left: -320px;
+}
+
+</style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <!-- 読み取り部 -->
+    <div id="photo-area" class="viewport"></div>
+    <button class="cameraButton" onclick="myst();"><i class="material-icons">camera_enhance</i></button>
+    <button class="cameraButton" onclick="mystop();"><i class="material-icons">settings</i></button>
+
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.slim.js"
+  integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY="
+  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://serratus.github.io/quaggaJS/examples/js/quagga.min.js"></script>
+
+<script>
+    function myst(){
+        startScanner();
+    }
+
+    function mystop(){
+        Quagga.stop()
+    }
+</script>
+
+<script>
+    $(function () {
+
+        startScanner();
+
+    });
+
+    const startScanner = () => {
+        Quagga.init({
+            inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#photo-area'),
+                    constraints: {
+                        decodeBarCodeRate: 3,
+                        successTimeout: 500,
+                        codeRepetition: true,
+                        tryVertical: true,
+                        frameRate: 15,
+                        width: 640,
+                        height: 480,
+                        facingMode: "environment"
+                    },
+                    area: { // defines rectangle of the detection/localization area
+                        top: "30%",    // top offset
+                        right: "10%",  // right offset
+                        left: "10%",   // left offset
+                        bottom: "30%"  // bottom offset
+                    },
+                },
+            decoder: {
+                readers: ["code_128_reader","code_93_reader"],
+                multiple: false,
+            },
+            debug: {
+                drawBoundingBox: false,
+                showFrequency: false,
+                drawScanline: false,
+                showPattern: false
+            }
+        }, function (err) {
+            if (err) {
+                console.log(err);
+                return
+            }
+
+            console.log("Initialization finished. Ready to start");
+            Quagga.start();
+
+            // Set flag to is running
+            _scannerIsRunning = true;
+        });
+
+Quagga.onProcessed(function (result) {
+    var drawingCtx = Quagga.canvas.ctx.overlay,
+        drawingCanvas = Quagga.canvas.dom.overlay;
+
+    if (result) {
+        if (result.boxes) {
+            drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+            result.boxes.filter(function (box) {
+                return box !== result.box;
+            }).forEach(function (box) {
+                Quagga.ImageDebug.drawPath(box, {
+                    x: 0,
+                    y: 1
+                }, drawingCtx, {
+                    color: "green",
+                    lineWidth: 2
+                });
+            });
+        }
+
+        if (result.box) {
+            Quagga.ImageDebug.drawPath(result.box, {
+                x: 0,
+                y: 1
+            }, drawingCtx, {
+                color: "#00F",
+                lineWidth: 2
+            });
+        }
+
+        if (result.codeResult && result.codeResult.code) {
+            Quagga.ImageDebug.drawPath(result.line, {
+                x: 'x',
+                y: 'y'
+            }, drawingCtx, {
+                color: 'red',
+                lineWidth: 3
+            });
+        }
+    }
+});
+
+    //barcode read call back
+    Quagga.onDetected(function (result) {
+        console.log(result.codeResult.code);
+        alert(result.codeResult.code);
+    });
+    }
+    </script>
+  </body>
+</html>

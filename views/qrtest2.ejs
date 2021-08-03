@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>QRシステム</title>
+<base target="_top">
+<!--◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆ここから◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-->
+<style>
+    /* リーダー部分 cssに移したいけど、移すとうまくいかないため、後日修正 */
+    #picture { display:none; }
+  </style>
+  <!--◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆ここまで◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-->
+  
+  </head>
+  <body>  
+    <div class="jumbotron m">
+    <div class="container">      
+      <!-- ★メインタイトル row justify-content-center で中央寄せ--> 
+      <div class="row justify-content-center">
+        <h1>QRCode Reader</h1>
+      </div>
+  
+      <!-- ★再読み込みボタン--> 
+      <div class="form-group row justify-content-center">
+        <button type="button" class="btn btn-secondary btn-lg myButton" onclick="restart();">再読み込み</button>
+      </div>
+  
+      <!-- ★カメラとpicture(canvas)部分--> 
+      <div id="a" class="form-group row justify-content-center box26">
+        <span class="box-title">読み取り</span>
+        <p>
+        <!-- autoplay playsinline mutedがiphoneなどでvideoを自動再生するために必要 -->
+        <!-- 元は500 400-->
+        <video id="camera" width="1000" height="800" autoplay playsinline muted></video>
+        <!-- 元は400 400-->
+        <canvas id="picture" width="650" height="800"></canvas>
+        </p>
+      </div>
+      
+      <!-- canvasは元々はここにあったが上に写した 読み込み後、同じdivの中にないとレイアウトが崩れたため -->
+      <!-- <div id="b" class="form-group row justify-content-center"> -->
+        <!-- 元は400 400-->
+      <!--  <canvas id="picture" width="650" height="800"></canvas> -->
+      <!-- </div> -->
+      
+    
+    <!-- ★QR読み込み後のデータを受け取るフォーム部分--> 
+      <div class="row justify-content-center">
+        <h1>検 品 内 容</h1>
+      </div>
+  
+    <form id="myForm" class="form-horizontal" name="myFormName" method="post" action="https://script.google.com/macros/s/AKfycbx2WdpqNK0hvbSfDS0VGJVrWb9MWQ5NW_23RlOV6CrGjD5hHTQ/exec">        
+      <div class="form-group">
+        <h2><label for="mytext1">品目コード</label></h2> <!-- for属性は下のtextのidと同じものを指定することでラベルをクリックしても紐付けたものが反応する--> 
+        <input type="text" id="mytext1" class="form-control myText" name="hinCode" value='<?= myD ?>' readonly>
+      </div>    
+  
+      <div class="form-group">
+        <h2><label for="mytext2">品名</label></h2>
+        <input type="text" id="mytext2" class="form-control myText" name="hinName" value='<?= myD ?>' readonly>
+      </div>    
+      
+      <div class="border border-primary rounded p-2">
+        <h2><label>同梱物</label></h2>
+        <!-- bootstrap使うとサイズ大きくできないので、使わない--> 
+        <label class="myLabel">
+          <input type="checkbox" class="myCheckBox" name="color1" id="check1" value="納品書">納品書
+        </label>
+        <label class="myLabel">
+          <input type="checkbox" class="myCheckBox" name="color1" id="check2" value="検査成績書">検査成績書
+        </label>
+        <label class="myLabel">
+          <input type="checkbox" class="myCheckBox" name="color1" id="check3" value="貸出書">貸出書
+        </label>
+        <div>
+          <label class="myLabel">その他</label>
+          <input type="text" id="check4" class="form-control myText" name="color1">
+        </div>
+      </div>
+      
+      <br>
+      
+      <div>
+        <label class="myLabel">
+          <input type="radio" class="myCheckBox" name="rara1" id="input_id669" value="保管場所E10" required>保管場所E10
+        </label>    
+        <label class="myLabel">
+          <input type="radio" class="myCheckBox" name="rara1" id="input_id769" value="保管場所E20">保管場所E20
+        </label>     
+        <label class="myLabel">
+          <input type="radio" class="myCheckBox" name="rara1" id="input_id869" value="保管場所E30">保管場所E30
+        </label>          
+      </div>
+      
+      <br>
+  
+      <div>
+        <input type="submit" class="btn btn-primary btn-lg btn-block myButton" value="送信する">
+      </div>
+</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<!-- 上記のjqueryを読み込む為、下記はコメントアウト(下記ソースはbootstrapでセットで読み込んでいたもの、簡略版かな？) -->
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+<!-- jQueryの記述 -->
+<!-- 本来は$(function(){ のような指定でいいのだが、$が何か別に取り込んでいるものと競合していて認識しないので -->
+<!-- jQuery(function(){ のように 《$→jQuery》 に置き換えて使用すること-->
+<script>
+    var refleshAllCheckboxes = (function() {
+      var allChecked = true;
+      jQuery('.list-check').each(function() {
+        allChecked &= jQuery(this).prop('checked');
+      });
+      jQuery('.check-all').prop('checked', allChecked);
+    });
+
+    jQuery('#list_table').on('click', '.check-all', function() {
+      var checkboxValue = jQuery(this).prop('checked');
+      jQuery('.check-all').prop('checked', checkboxValue);
+      jQuery('.list-check').prop('checked', checkboxValue);
+    });
+
+    jQuery('#list_table').on('click', '.list-check', function() {
+      refleshAllCheckboxes();
+    });
+
+    jQuery('#append_row').on('click', function() {
+      jQuery('#list_table').append(
+        jQuery('<tr>').append(
+          jQuery('<td>').append(jQuery('<input type="checkbox">').addClass('list-check').prop('checked', jQuery('.check-all').prop('checked'))),
+          jQuery('<td>').append('abc'),
+          jQuery('<td>').append(jQuery('#add_name').val()),
+          jQuery('<td>').append(jQuery('#add_birth').val()),
+          jQuery('<td>').append(
+            jQuery('<a>').prop('href', '#').addClass('delete-link').append('削除')
+          )
+        )
+      );
+      jQuery('#add_no').val('');
+      jQuery('#add_name').val('');
+      jQuery('#add_birth').val('');
+    });
+
+    jQuery('#list_table').on('click', '.delete-link', function(){
+      jQuery(this).closest('tr').remove();
+    });
+    
+/* ------------------------------
+ Loading イメージ表示関数
+ 引数： msg 画面に表示する文言
+ ------------------------------ */
+function dispLoading(msg){
+  // 引数なし（メッセージなし）を許容
+  if( msg == undefined ){
+    msg = "";
+  }
+  // 画面表示メッセージ
+  var dispMsg = "<div class='loadingMsg'>" + msg + "</div>";
+  // ローディング画像が表示されていない場合のみ出力
+  if(jQuery("#loading").length == 0){
+    jQuery("body").append("<div id='loading'>" + dispMsg + "</div>");
+  }
+}
+ 
+/* ------------------------------
+ Loading イメージ削除関数
+ ------------------------------ */
+function removeLoading(){
+  jQuery("#loading").remove();
+}
+</script>
+
+
+
+<!-- javaScriptの記述 -->
+<script>
+  function addTableRow() {  
+        var table = document.getElementById("myTableData");
+        //var tex = document.getElementById("mytext1");
+        //var textDa = tex.value;
+        var textDa = document.getElementById("mytext1").value;
+        
+        // 行を行末に追加
+        var row = table.insertRow(-1);
+        
+        //td分追加
+        var cell1 = row.insertCell(-1);
+        var cell2 = row.insertCell(-1);
+        var cell3 = row.insertCell(-1);
+        var cell4 = row.insertCell(-1);
+        
+        // セルの内容入力
+        cell1.innerHTML = '行を追加しました';
+        cell2.innerHTML = '<input type="text" class="form-control myText" name="hinCodeTab" value="aaaaaa">';
+        //cell3.innerHTML = '<select name=”month”> <option value=”jan”>1月</option> <option value=”feb”>2月</option> </select>'
+        cell3.innerHTML = '<select name=”month”>\
+                             <option value=”jan”>1月</option>\
+                             <option value=”feb”>2月</option>\
+                           </select>'
+                           
+        var text = document.createElement("input");
+        text.type = "text";
+        text.id = "a"
+        text.name = "b";
+        text.value = textDa;
+        cell4.appendChild(text);
+  }
+
+  function coldel(obj) {
+    // 削除ボタンを押下された行を取得
+    tr = obj.parentNode.parentNode;
+    // trのインデックスを取得して行を削除する
+    tr.parentNode.deleteRow(tr.sectionRowIndex);
+  }
+
+function getTableData(){
+    // 抽出したデータを格納する配列
+    let data = [];
+    // idでhtmlからtableの要素を取得し、trタグのNodeListを取得
+    let table = document.getElementById('myTableData');
+    let tbl_tr = table.querySelectorAll('tr');
+    //テーブルの1行(trタグ)毎に処理
+    tbl_tr.forEach(function(tr){
+        //tdタグのNodeListを取得
+        let cells = tr.querySelectorAll('td');
+        //テーブルのヘッダー部分は飛ばす
+        if (cells.length!=0){
+            // テーブルの1行(trタグ)のデータを格納する配列
+            let d =[];
+            //セル(tdタグ)毎に処理
+            cells.forEach(function(td){
+                //セルがinputタグだった場合
+                if(td.innerHTML.indexOf('input') != -1) {
+                    d.push(td.firstElementChild.value);
+                }
+                //セルがselectだった場合
+                else if(td.innerHTML.indexOf('select') != -1) {
+                    d.push(td.firstElementChild.value);
+                }                
+                //セルがtextだった場合
+                else if(td.textContent!=""){
+                    d.push(td.textContent);
+                }
+                //セルが空白だった場合
+                else{
+                    d.push("");
+                }
+            });
+            data.push(d);
+        }
+    });
+    return data
+}
+
+  function spreadsheetWrite(){
+
+    dispLoading("処理中...");
+    
+    var data2 = getTableData();
+    
+    google.script.run.withSuccessHandler(returnSuccess).WriteSpreadsheet(data2);
+  }
+  
+  function returnSuccess(s){
+    removeLoading();
+  
+    alert(s);
+  }  
+
+
+    //constは再代入不可の変数宣言 
+    const video  = $("#camera");     // === document.querySelector("#camera");
+    const canvas = $("#picture");    // === document.querySelector("#picture");
+    const ctx = canvas.getContext("2d"); //canvas要素は描画機能がないので、getContext("2d") オブジェクトは、線、ボックス、円、などを描画するメソッドを持っている
+
+    window.onload = () => {
+    /** カメラ設定 */
+    const constraints = {
+      audio: false,
+      video: {
+      width: 500,
+      height: 400,
+      facingMode: { exact: "environment" }   // フロントカメラを利用する
+      }
+    };
+
+    /**
+     * カメラを<video>と同期
+     */
+     navigator.mediaDevices.getUserMedia(constraints)
+     .then( (stream) => {
+     video.srcObject = stream;
+     video.onloadedmetadata = (e) => {
+       video.play();
+     
+       // QRコードのチェック開始
+       checkPicture();
+     };
+     })
+     .catch( (err) => {
+       console.log(err.name + ": " + err.message);
+       });
+     };
+
+function chtest(){
+  //document.myform2.nameta.value = "zzzzzzzzzzzzzzz";
+  //document.myFormName.hinCode.value = "zzzzzzzzzzzzzzz";
+  document.myFormName.color1[0].innerText = "zzzzzzzzzzzzzzz";
+  document.myFormName.color1[1].innerText = "zzzzzzzzzzzzzzz";
+  document.myFormName.color1[1].checked = true;
+  document.myFormName.color1[2].checked = true;
+}
+
+function restart(){
+  // canvasを初期化
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  canvas.style.display = 'none';
+  video.style.display = 'block';
+  
+  // video映像が残っていると、0.3秒刻みでチェックしているので、読み込み直す前にQRコードが再認識されてしまう
+  // それを防ぐために、loadイベントで初期化している
+  video.load();
+  
+  // videoの開始
+  video.play();
+  
+  // QRコードのチェック開始
+  checkPicture();  
+}
+
+/**
+ * QRコードの読み取り
+ */
+function checkPicture(){
+  // カメラの映像をCanvasに複写
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // QRコードの読み取り
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+  //----------------------
+  // 存在する場合
+  //----------------------
+  if( code ){
+    // 結果を表示
+    //setQRResult("#test", code.data);  // 文字列
+    
+    var splitWord = ",";
+    var array_suuji = code.data.split(splitWord);
+        
+	for (var i = 0; i < array_suuji.length; i++){
+      if (i == 0) {
+        document.myFormName.hinCode.value = array_suuji[0];
+      } else if (i == 1) {
+        document.myFormName.hinName.value = array_suuji[1];
+      } else {
+      
+      }
+    }
+    
+    //document.myFormName.hinCode.value = array_suuji[1];
+    
+    //document.myFormName.hinCode.value = code.data;
+    
+    drawLine(ctx, code.location);       // 見つかった箇所に線を引く
+
+    // video と canvas を入れ替え
+    canvas.style.display = 'block';
+    video.style.display = 'none';
+    video.pause();
+  }
+  //----------------------
+  // 存在しない場合
+  //----------------------
+  else{
+    // 0.3秒後にもう一度チェックする
+    setTimeout( () => {
+      checkPicture();
+    }, 300);
+  }
+}  
+
+/** ◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆*/
+/**                                                    */
+/** 以下、QRコード専用のソースの為、編集不要                */
+/**                                                    */
+/** ◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆-◆*/
+/**
+ * 発見されたQRコードに線を引く
+ *
+ * @param {Object} ctx
+ * @param {Object} pos
+ * @param {Object} options
+ * @return {void}
+ */
+function drawLine(ctx, pos, options={color:"blue", size:5}){
+  // 線のスタイル設定
+  ctx.strokeStyle = options.color;
+  ctx.lineWidth   = options.size;
+
+  // 線を描く
+  ctx.beginPath();
+  ctx.moveTo(pos.topLeftCorner.x, pos.topLeftCorner.y);         // 左上からスタート
+  ctx.lineTo(pos.topRightCorner.x, pos.topRightCorner.y);       // 右上
+  ctx.lineTo(pos.bottomRightCorner.x, pos.bottomRightCorner.y); // 右下
+  ctx.lineTo(pos.bottomLeftCorner.x, pos.bottomLeftCorner.y);   // 左下
+  ctx.lineTo(pos.topLeftCorner.x, pos.topLeftCorner.y);         // 左上に戻る
+  ctx.stroke();
+}
+
+/**
+ * QRコードの読み取り結果を表示する
+ *
+ * @param {String} id
+ * @param {String} data
+ * @return {void}
+ */
+function setQRResult(id, data){
+  $(id).innerHTML = escapeHTML(data);
+}
+
+/**
+ * jQuery style wrapper
+ *
+ * @param {string} selector
+ * @return {Object}
+ */
+ function $(selector){
+  return( document.querySelector(selector) );
+}
+
+/**
+ * HTML表示用に文字列をエスケープする
+ *
+ * @param {string} str
+ * @return {string}
+ */
+function escapeHTML(str){
+  let result = "";
+  result = str.replace("&", "&amp;");
+  result = str.replace("'", "&#x27;");
+  result = str.replace("`", "&#x60;");
+  result = str.replace('"', "&quot;");
+  result = str.replace("<", "&lt;");
+  result = str.replace(">", "&gt;");
+  result = str.replace(/\n/, "<br>");
+
+  return(result);
+}
+
+
+</script>
+
+</body>
+</html>

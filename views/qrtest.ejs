@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    
+    <style>
+        #qrCanvas {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content{
+            background-color: white;
+            width: 500px;
+            margin: 40% auto;
+        }      
+          
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <button class="cameraButton" onclick="scanQRcode();"><i class="material-icons">camera_enhance</i></button>
+    <button class="cameraButton" onclick="startCamera();"><i class="material-icons">settings</i></button>
+    
+    <!-- 読み取り部 -->
+    <video id="qrplayer" muted autoplay playsinline></video>
+    <canvas id="qrCanvas" width="240" height="320"></canvas>
+    <textarea id="jan" rows="8" cols="40"></textarea>
+
+    <!-- モーダルウィンドウ -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h1>読み取り結果</h1>
+                <span id="js-result"></span>
+                <a href="" id="js-link" target="_blank">開く</a>
+                <input type="button" id="closeBtn" value="close">
+            </div>
+        </div>
+    </div>
+
+    <script src="/javascripts/jsqr.js"></script>
+    <script src="/javascripts/jsqrLib.js"></script>
+
+
+    <script>
+        var btn = document.getElementById('btn');
+        var modal = document.getElementById('modal');
+
+        var closeBtn = document.getElementById('closeBtn');
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        })     
+
+        // モーダルウィンドウ以外をクリックで、モーダルウィンドウを閉じる
+        window.addEventListener('click', function(e) {
+            if (e.target == modal) {
+                modal.style.display = 'none';
+            }
+        });           
+    </script>
+
+    <script>
+
+    </script>
+  </body>
+</html>
