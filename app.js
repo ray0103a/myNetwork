@@ -7,7 +7,7 @@ const session = require('express-session')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var usersRouter = require('./routes/login');
+var mainMenuRouter = require('./routes/mainMenu');
 var barcode2Router = require('./routes/barcode2');
 var barcode3Router = require('./routes/barcode3');
 var qrtestRouter = require('./routes/qrtest');
@@ -81,7 +81,7 @@ passport.deserializeUser(function(user, done) {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/login', usersRouter);
+app.use('/mainMenu', mainMenuRouter);
 app.use('/qrtest', qrtestRouter);
 app.use('/qrtest2', qrtest2Router);
 app.use('/barcode2', barcode2Router);

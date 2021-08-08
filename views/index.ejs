@@ -1,11 +1,66 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
+    <!-- レスポンシブ user-scalable(拡大の許可)-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
+    
+    <!-- タイトル -->
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+
+    <!-- CSS読み込み-->
+    <link rel='stylesheet' href='/stylesheets/index.css'/>
+
+    <!-- Bootstrap5.0の読み込み -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <style>
+        @font-face {
+            font-family: 'MyFont';
+            src: url(stylesheets/x12y16pxMaruMonica.ttf);
+        }    
+        body {
+            font-family: MyFont;
+        }
+    </style>
+</head>
+<body>
+    <!-- ローディング画面 -->
+    <div id="loading" class="loaded">
+        <div class="spinner"></div>
+    </div>
+
+    <form action="/" method="POST" name="myform" class="full-page d-flex flex-column align-items-center justify-content-center">
+        <h1><%= message %></h1>
+        <div class="mb-3 col-6" style="z-index: 2;position: relative;">
+            <input type="text" name="username" class="form-control form-control-lg" id="formGroupExampleInput" placeholder="ユーザーID">
+        </div>      
+        <div class="mb-3 col-6" style="z-index: 2;position: relative;">
+            <input type="password" name="password" class="form-control form-control-lg" id="formGroupPassword" placeholder="パスワード">
+        </div>  
+        <input type="button" id="mySubmitButton" class="mySubmitButton col-6" onclick="postLogin()" value="ログイン2" style="z-index: 2;position: relative;"></button>
+        <!-- アニメーション用 -->
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </form>
+
+    <script>
+        function postLogin(){
+            const spinner = document.getElementById('loading');
+            spinner.classList.remove('loaded');
+
+            setTimeout(() => {
+                document.myform.submit();
+            }, 2500);
+        }
+    </script>
+</body>
 </html>
