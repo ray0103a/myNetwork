@@ -1,22 +1,209 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
+    <!-- レスポンシブ user-scalable(拡大の許可)-->
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <style>
-        @font-face {
-            font-family: 'MyFont';
-            src: url(stylesheets/x12y16pxMaruMonica.ttf);
-        }    
-        body {
-            font-family: MyFont;
+        .ham {
+            position:fixed;
+            z-index: 999;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            background-color: aqua;
+        }
+        .ham_line {
+            position: absolute;
+            left: 10px;
+            width: 20px;
+            height: 2px;
+            background-color: #333333;
+            transition: all 0.3s;
+        }
+        .ham_line1 {
+            top: 10px;
+        }
+        .ham_line2 {
+            top: 18px;
+        }
+        .ham_line3 {
+            top: 26px;
+        }
+
+        .clicked .ham_line1 {
+            transform: rotate(-315deg);
+            top: 20px;
+        }
+        .clicked .ham_line2 {
+            width: 0px;
+        }
+        .clicked .ham_line3 {
+            transform: rotate(315deg);
+            top: 20px;
+        }
+        .menu {
+            position: fixed;
+            width: 300px;
+            height: 100vh;
+            right: -120%;
+            background-color: aquamarine;
+            transition: all 0.6s;
+        }
+        .clicked .menu {
+            right: 0px;
+        }
+
+        .test{
+            display: none;
+            opacity: 0;
+            background-color: aqua;
+        }
+        .show {
+            display: inline-block;
+        }
+
+        .fade{
+            animation-name: fadeIn;
+            animation-duration: 1s;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes fadeIn {
+            0% {opacity: 0}     /*アニメーション開始時は不透明度0%*/
+            100% {opacity: 1}   /*アニメーション終了時は不透明度100%*/
+        }
+
+        .myNB{
+            margin: 2px;
+        }
+
+        .myNB1{
+            background-color: rgb(134, 238, 238);
+            border-color: black;
+            color: black;
+        }
+
+        .myNB2{
+            background-color: rgb(153, 235, 137);
+            border-color: black;
+            color: black;
+        }
+
+        .myMenuBtn{
+            height: 60px;
         }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">ブランド</a>
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="ナビゲーションの切替">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <input id="kaihatuButton" class="btn btn-primary myNB myNB1" type="button" value="メニュー1">
+                    </li>
+                    <li class="nav-item">
+                       <input id="seikanButton" class="btn btn-primary myNB myNB2" type="button" value="メニュー2">
+                   </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">リンク2</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">無効</a>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="ham" id="ham">
+        <span class="ham_line ham_line1"></span>
+        <span class="ham_line ham_line2"></span>
+        <span class="ham_line ham_line3"></span>
+    </div>
+
+    <div class="menu_wrapper" id="menu_wrapper">
+        <div class="menu">
+            <ul>
+                <li><a href="#1">メニュー１</a></li>
+                <li><a href="#2">メニュー２</a></li>
+                <li><a href="#3">メニュー３</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- 開発 メニュー -->
+    <div class="test" id="menuKaihatu" style="width: 100%;">
+        <div class="row">
+            <button class="btn btn-primary col-5 mx-auto" type="button">Button</button>
+            <button class="btn btn-primary col-5 mx-auto" type="button">Button</button>
+        </div>
+    </div>
+
+    <!-- 生産管理 メニュー -->
+    <div class="test" id="menuSeikan" style="width: 100%; height: 500px;">
+        <div class="row">
+            <button class="btn btn-danger col-5 mx-auto myMenuBtn" type="button">Button11</button>
+            <button class="btn btn-danger col-5 mx-auto myMenuBtn" type="button">Button11</button>
+        </div>
+    </div>
+
+    <script>
+        const ham = document.getElementById('ham');
+        const menu_wrapper = document.getElementById('menu_wrapper');
+        const menuKaihatu = document.getElementById('menuKaihatu');
+
+        const kaihatuButton = document.getElementById('kaihatuButton'); //開発ボタン
+        const seikanButton = document.getElementById('seikanButton');   //生産管理ボタン
+        ham.addEventListener('click', function() {
+            ham.classList.toggle('clicked');
+            menu_wrapper.classList.toggle('clicked');
+            aaa.classList.toggle('show');
+
+            setTimeout(() => {
+                aaa.classList.toggle('fade');
+            }, 100);
+        });
+
+        //開発ボタン
+        kaihatuButton.addEventListener('click', function() {
+            removeMyClass();
+            menuKaihatu.classList.add('show');
+
+            setTimeout(() => {
+                menuKaihatu.classList.add('fade');
+            }, 100);
+        });
+        
+        //生産管理ボタン
+        seikanButton.addEventListener('click', function() {
+            removeMyClass();
+            menuSeikan.classList.add('show');
+
+            setTimeout(() => {
+                menuSeikan.classList.add('fade');
+            }, 100);
+        });
+
+        function removeMyClass(){
+            menuKaihatu.classList.remove('show');
+            menuKaihatu.classList.remove('fade');
+            menuSeikan.classList.remove('show');
+            menuSeikan.classList.remove('fade');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+</body>
 </html>
