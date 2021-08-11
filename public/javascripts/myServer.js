@@ -1,10 +1,9 @@
 const fs = require("fs");
 const path = require('path');
 
-/*aaaaaaa
 const Database = require("nedb");
 
-var myPath = path.resolve() + '\\public\\nedb\\users.db';
+var myPath = path.resolve() + '/public/nedb/users.db';
 
 const db = new Database({ 
         filename: myPath ,
@@ -17,11 +16,10 @@ const db = new Database({
  * @param {*} data 
  * @returns 
  */
-/*
 exports.writeLog = function(user, data){
     return new Promise(function(resolve, reject) {
         //ファイルパスを取得
-        var folderPath = path.resolve() + '\\public\\logs\\';
+        var folderPath = path.resolve() + '/public/logs/';
 
         //今日日付を取得
         var dt = new Date(Date.now() + ((new Date().getTimezoneOffset() + (9 * 60)) * 60 * 1000));
@@ -66,4 +64,3 @@ exports.selectNeDb = function(sql){
         }
     })
 };
-*/
