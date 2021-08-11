@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require('path');
+
+/*aaaaaaa
 const Database = require("nedb");
 
 var myPath = path.resolve() + '\\public\\nedb\\users.db';
@@ -15,6 +17,7 @@ const db = new Database({
  * @param {*} data 
  * @returns 
  */
+/*
 exports.writeLog = function(user, data){
     return new Promise(function(resolve, reject) {
         //ファイルパスを取得
@@ -63,3 +66,4 @@ exports.selectNeDb = function(sql){
         }
     })
 };
+*/

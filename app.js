@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //npm install express-session
 var passport = require('passport');
 
-//var myServer = require(__dirname + '/public/javascripts/myServer.js');
+var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
 
 app.use(session({ 
     resave:false,
