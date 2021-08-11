@@ -55,14 +55,13 @@ passport.use(new LocalStrategy({
     process.nextTick(function () {
         async function funcSelect() {
             //usernameを検索条件にし、passwordを取得する
-            /*
             await myServer.selectNeDb(username).then(function(result) {
                 checkPass = result;
             }).catch(function(value) {
                 // 非同期処理が失敗した場合
                 console.log('実行結果:' + value);
             });
-            */
+            
 
             if (password == checkPass) {
                 //return done(null, username)
