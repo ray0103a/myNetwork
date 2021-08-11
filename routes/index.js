@@ -4,6 +4,51 @@ const passport = require('passport');
 
 /* TopPage */
 let isLogined = function(req, res, next){
+
+
+    //NeDbテスト
+    /*
+    const Database = require("nedb");
+    const db = new Database({ 
+            filename: "../nedb/example.db" ,
+            autoload: true
+        });
+    */
+
+    // 保存したいドキュメント
+    const doc = {
+        // ID(指定ない場合は16桁のIDを自動生成)
+        //_id: "0000000000000001",
+        // ユーザーID
+        username: "test",
+        // パスワード
+        password: 111,
+    };
+
+    // 新規ドキュメントをデータベースに保存する
+    /*
+    db.insert(doc, (error, newDoc) => {
+        if (error !== null) {
+            console.error(error);
+        }
+
+        // newDocにはアルファベット16文字の値を持つ_idフィールドが追加されている
+        console.log(newDoc);
+    });
+    */
+
+    /*
+    db.find({ username: "r-inoue" }, (error, docs) => {
+        console.error(docs);
+        if (docs.length){
+            a = docs[0].password;
+        }
+    });
+    */
+
+
+
+
     console.log(req.user);
     if(req.isAuthenticated()){
         if (req.user.myKey == 'zzz') {

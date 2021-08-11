@@ -8,11 +8,13 @@ const session = require('express-session')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mainMenuRouter = require('./routes/mainMenu');
+var barcodeRouter = require('./routes/barcode');
 var barcode2Router = require('./routes/barcode2');
 var barcode3Router = require('./routes/barcode3');
 var qrtestRouter = require('./routes/qrtest');
 var qrtest2Router = require('./routes/qrtest2');
 
+var myServer = require('./public/javascripts/myServer.js');
 
 var app = express();
 
@@ -48,15 +50,19 @@ passport.use(new LocalStrategy({
     passwordField: 'password',
     passReqToCallback: true,
     session: true,
-}, function (req, username, password, done) {
-    const filename = 'mylogin.txt';
-    const fs = require('fs');
-    var folPath = path.resolve() + '/public/login/' + filename
-    let text = fs.readFileSync(folPath, "utf-8");
-    
+}, function (req, username, password, done) {    
+    let checkPass = 'defaultXXXXXXXXXX';
     process.nextTick(function () {
         async function funcSelect() {
-            if (username == text && password == '123') {
+            //usernameを検索条件にし、passwordを取得する
+            await myServer.selectNeDb(username).then(function(result) {
+                checkPass = result;
+            }).catch(function(value) {
+                // 非同期処理が失敗した場合
+                console.log('実行結果:' + value);
+            });
+
+            if (password == checkPass) {
                 //return done(null, username)
                 var kaihatsu = 'zzz';
                 return done(null, { username: username, myKey: kaihatsu});
@@ -84,6 +90,7 @@ app.use('/users', usersRouter);
 app.use('/mainMenu', mainMenuRouter);
 app.use('/qrtest', qrtestRouter);
 app.use('/qrtest2', qrtest2Router);
+app.use('/barcode', barcodeRouter);
 app.use('/barcode2', barcode2Router);
 app.use('/barcode3', barcode3Router);
 
