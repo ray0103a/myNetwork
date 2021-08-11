@@ -14,7 +14,7 @@ var barcode3Router = require('./routes/barcode3');
 var qrtestRouter = require('./routes/qrtest');
 var qrtest2Router = require('./routes/qrtest2');
 
-var myServer = require('./public/javascripts/myServer.js');
+//var myServer = require('./public/javascripts/myServer.js');
 
 var app = express();
 
