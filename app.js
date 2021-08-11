@@ -14,8 +14,6 @@ var barcode3Router = require('./routes/barcode3');
 var qrtestRouter = require('./routes/qrtest');
 var qrtest2Router = require('./routes/qrtest2');
 
-//var myServer = require('./public/javascripts/myServer.js');
-
 var app = express();
 
 // view engine setup
@@ -33,6 +31,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 //npm install passport-local
 //npm install express-session
 var passport = require('passport');
+
+var myServer = require('./public/javascripts/myServer.js');
 
 app.use(session({ 
     resave:false,
@@ -55,14 +55,12 @@ passport.use(new LocalStrategy({
     process.nextTick(function () {
         async function funcSelect() {
             //usernameを検索条件にし、passwordを取得する
-            /*
             await myServer.selectNeDb(username).then(function(result) {
                 checkPass = result;
             }).catch(function(value) {
                 // 非同期処理が失敗した場合
                 console.log('実行結果:' + value);
             });
-            */
 
             if (password == checkPass) {
                 //return done(null, username)
