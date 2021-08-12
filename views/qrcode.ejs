@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- レスポンシブ user-scalable(拡大の許可)-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    
+    <title><%= title %></title>
+    
+    <style>
+        #qrCanvas {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content{
+            background-color: white;
+            width: 500px;
+            margin: 40% auto;
+        }      
+        .outer{
+            text-align: center;
+        }
+        .inner{
+            display: inline-block;
+            text-align: center;
+        }
+        .setNone{
+            display: none;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <body>
+    
+
+
+    
+    <div class="container">
+        <div class="outer">
+            <div class="inner">
+                <h1><%= title %></h1>
+                <button class="cameraButton" onclick="scanQRcode();"><i class="material-icons">camera_enhance</i></button>
+                <button class="cameraButton" onclick="startCamera();"><i class="material-icons">not_started</i></button>
+            </div>
+        </div>
+        
+        <!-- 読み取り部 -->
+        <div id="scanID" class="outer setNone">
+            <div class="inner">
+                <video id="qrplayer" width="320" height="320" muted autoplay playsinline></video>
+                <canvas id="qrCanvas" width="320" height="320"></canvas>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="textarea1" class="form-label">名前</label>
+            <textarea class="form-control" id="textarea1" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="textarea2" class="form-label">名前2</label>
+            <textarea class="form-control" id="textarea2" rows="3"></textarea>
+        </div>
+    </div>
+
+    <script src="/javascripts/jsqr.js"></script>
+
+
+    <script>
+        let qrplayer = document.getElementById('qrplayer');
+        let qrCanvas = document.getElementById('qrCanvas');
+        let width = qrCanvas.width;
+        let height = qrCanvas.height;
+        const canvasContext = qrCanvas.getContext("2d");
+
+        /**
+         * 引数(formdata)を送信する
+         */
+        function scanQRcode() {
+            //Video部分をhtml上に表示する
+            const scanid = document.getElementById('scanID');
+            scanid.classList.remove('setNone');
+
+            navigator.mediaDevices.getUserMedia({
+                video: {facingMode: "environment", width: width, height: height},
+                audio: false
+            })
+            .then(function(stream) {
+                // デバッグ用
+                let currentTrack;
+                stream.getVideoTracks().forEach(track => {
+                if (track.readyState == 'live') {
+                    currentTrack = track;
+                    return;
+                }
+                });
+                let settings = currentTrack.getSettings();
+                let setA = currentTrack.getCapabilities();
+                let width = settings.width;
+                let height = settings.height;
+                // ここまでデバッグ用
+
+                qrplayer.srcObject = stream
+
+                qrplayer.onloadedmetadata = (e) => {
+                    qrplayer.play();
+                    
+                    // QRコードのチェック開始
+                    checkPicture();
+                };
+            })
+            .catch(function(err) {
+                alert('Error!!')
+            }) 
+
+            function checkPicture(){
+                // 500ms間隔でスナップショットを取得し、QRコードの読み取りを行う
+                let intervalHandler = setInterval(() => {
+                    // 取得している動画をCanvasに描画
+                    canvasContext.drawImage(qrplayer, 0, 0, width, height);
+
+                    // Canvasからデータを取得
+                    const imageData = canvasContext.getImageData(0, 0, width, height);
+
+                    // jsQRにデータを渡して解析
+                    const scanResult = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (scanResult) {
+                        // 繰り返し処理の終了を設定
+                        clearInterval(intervalHandler);
+                        console.log(scanResult);
+
+                        var splitWord = ",";
+
+                        // 見つかった箇所に線を引く
+                        drawLine(canvasContext, scanResult.location); 
+                        
+                        // Videoとcanvasを入れ替える
+                        qrCanvas.style.display = 'block';
+                        qrplayer.style.display = 'none';
+                        qrplayer.pause();   
+
+                        let jan = document.getElementById("textarea1");
+                        jan.innerHTML = jan.innerHTML + scanResult.data;
+                        //jan.scrollTop = jan.scrollHeight;
+                    }
+                }, 100)
+            }
+        }
+
+        /**
+         * Videoを再び再生する
+         */
+        function startCamera(){
+            canvasContext.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+            qrplayer.load();
+            qrplayer.play();
+            //checkPicture();
+        }
+
+        /**
+         * 発見されたQRコードに線を引く
+         *
+         * @param {Object} ctx
+         * @param {Object} pos
+         * @param {Object} options
+         * @return {void}
+         */
+        function drawLine(ctx, pos, options={color:"blue", size:5}){
+            // 線のスタイル設定
+            ctx.strokeStyle = options.color;
+            ctx.lineWidth   = options.size;
+
+            // 線を描く
+            ctx.beginPath();
+            ctx.moveTo(pos.topLeftCorner.x, pos.topLeftCorner.y);         // 左上からスタート
+            ctx.lineTo(pos.topRightCorner.x, pos.topRightCorner.y);       // 右上
+            ctx.lineTo(pos.bottomRightCorner.x, pos.bottomRightCorner.y); // 右下
+            ctx.lineTo(pos.bottomLeftCorner.x, pos.bottomLeftCorner.y);   // 左下
+            ctx.lineTo(pos.topLeftCorner.x, pos.topLeftCorner.y);         // 左上に戻る
+            ctx.stroke();
+        }    
+    </script>
+
+  </body>
+</html>

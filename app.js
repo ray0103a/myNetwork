@@ -11,6 +11,7 @@ var mainMenuRouter = require('./routes/mainMenu');
 var barcodeRouter = require('./routes/barcode');
 var barcode2Router = require('./routes/barcode2');
 var barcode3Router = require('./routes/barcode3');
+var qrcodeRouter = require('./routes/qrcode');
 var qrtestRouter = require('./routes/qrtest');
 var qrtest2Router = require('./routes/qrtest2');
 
@@ -37,8 +38,8 @@ var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
 app.use(session({ 
     resave:false,
     saveUninitialized:false,
-    rolling: true, //cookieが有効期限が都度更新されるか
-    cookie: {maxAge:1 * 60 * 1000},  //有効期限
+    rolling: true,                  //cookieが有効期限が都度更新されるか
+    cookie: {maxAge:1 * 60 * 1000}, //有効期限 1ミリ秒(1/1000秒) * 1000 = 1秒
     secret: 'passport test' }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -89,6 +90,7 @@ passport.deserializeUser(function(user, done) {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/mainMenu', mainMenuRouter);
+app.use('/qrcode', qrcodeRouter);
 app.use('/qrtest', qrtestRouter);
 app.use('/qrtest2', qrtest2Router);
 app.use('/barcode', barcodeRouter);
