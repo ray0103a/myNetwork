@@ -23,14 +23,18 @@ if (process.env.PORT) {
   //Heroku
   var server = http.createServer(app);
 } else {
-  //ローカル
+  //ローカル2つ建てる
+  var server = http.createServer(app);
+  
   var fs = require('fs');
   var https = require('https');
+  var httpsPort = '3001';
   var options = {
     key: fs.readFileSync('server-key.pem'),
     cert: fs.readFileSync('server-cert.crt')
   };
-  var server = https.createServer(options, app);
+  var server2 = https.createServer(options, app);
+  server2.listen(httpsPort);
 }
 
 

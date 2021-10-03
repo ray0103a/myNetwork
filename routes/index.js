@@ -91,7 +91,7 @@ router.post('/',passport.authenticate('local',
             //await myServer.writeLog(req.user.username, "ログインしました。");
 
             //メインメニューへ遷移
-            res.render('mainMenu', { title : 'mainMenu' });
+            res.render('mainMenu', { title : 'Self Introduction' });
             //res.send('Success');
         }
 

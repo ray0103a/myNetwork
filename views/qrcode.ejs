@@ -45,9 +45,6 @@
   </head>
   <body>
     
-
-
-    
     <div class="container">
         <div class="outer">
             <div class="inner">
@@ -74,6 +71,47 @@
             <textarea class="form-control" id="textarea2" rows="3"></textarea>
         </div>
     </div>
+
+
+    <canvas id="myRaderChart" width="3" height="3"></canvas>
+
+    <!-- CDN -->
+  　<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+  
+    <script>
+      var ctx = document.getElementById("myRaderChart");
+      var myRadarChart = new Chart(ctx, {
+          type: 'radar', 
+          data: { 
+              labels: ["コミュニケーション力", "創造力", "頭の良さ", "技術力", "好奇心"],
+              datasets: [{
+                    label: '5点満点',
+                    data: [4, 4, 1, 2, 5],
+                    backgroundColor: 'RGBA(225,95,150, 0.5)',
+                    borderColor: 'RGBA(225,95,150, 1)',
+                    borderWidth: 1,
+                    pointBackgroundColor: 'RGB(46,106,177)'
+              }, ]
+          },
+          options: {
+              title: {
+                  display: true,
+                  text: '自己分析'
+              },
+              scale:{
+                  ticks:{
+                      suggestedMin: 0,
+                      suggestedMax: 5,
+                      stepSize: 1,
+                      callback: function(value, index, values){
+                          return  value +  ''
+                      }
+                  }
+              }
+          }
+      });
+      </script>
+
 
     <script src="/javascripts/jsqr.js"></script>
 

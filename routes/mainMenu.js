@@ -20,7 +20,7 @@ let isLogined = function(req, res, next){
 
 router.get('/', isLogined, function(req, res, next) {
     //認証OKの場合に処理される
-    res.render('mainMenu', { title : 'mainMenu' });
+    res.render('mainMenu', { title : 'Self Introduction' });
 });
 
 module.exports = router;
