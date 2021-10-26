@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- レスポンシブ user-scalable(拡大の許可)-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     
@@ -41,7 +43,7 @@
         </ul>
         <button class="btn btn-danger" v-on:click="getItem">データ取得</button>
         <button class="btn btn-danger" v-on:click="updateItem">登録</button>
-        <pre>{{ $data }}</pre>
+        <!--<pre>{{ $data }}</pre>-->
     </div>
     <script src="https://unpkg.com/vue@3"></script>
     <script>
