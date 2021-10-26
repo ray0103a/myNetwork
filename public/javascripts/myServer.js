@@ -64,3 +64,16 @@ exports.selectNeDb = function(sql){
         }
     })
 };
+
+exports.insertNeDb = function(sql){
+    return new Promise(function(resolve, reject) {
+        let checkPass;
+        try{
+            db.insert({username:"test2",password:345});
+
+            resolve();
+        } catch(e) {
+            reject();
+        }
+    })
+};
