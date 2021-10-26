@@ -39,18 +39,54 @@
                 </div>
             </li>
         </ul>
-        <button class="btn btn-danger" v-on:click="updateItem">更新</button>
+        <button class="btn btn-danger" v-on:click="getItem">データ取得</button>
+        <button class="btn btn-danger" v-on:click="updateItem">登録</button>
         <pre>{{ $data }}</pre>
     </div>
     <script src="https://unpkg.com/vue@3"></script>
     <script>
         Vue.createApp({
-
             el:'#app',
                 data() {
                     return {
                         newItem:"",
                         todos:[]
+                    }
+                },
+                mounted() {
+                    window.onload = ()=>{
+                        //URLを取得
+                        //let url = 'http://localhost:3000/todo/getItem';
+                        let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+
+                        var data = this.todos;
+
+                        //保存したデータを取得する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(data)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+                                //デバッグ用 JSONからオブジェクトへ変換
+                                var p = JSON.parse(json);
+
+                                this.todos = p;
+                            }) 
+                            .catch(function (error) {
+                                alert(error);
+                            });    
                     }
                 },
                 methods:{
@@ -67,13 +103,47 @@
                     deleteItem:function(index){ //indexを引数に指定
                         this.todos.splice(index,1) //indexで指定された要素を1つ削除
                     },
+                    getItem:function(){
+                        //URLを取得
+                        //let url = 'http://localhost:3000/todo/getItem';
+                        let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+
+                        var data = this.todos;
+
+                        //保存したデータを取得する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(data)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+                                //デバッグ用 JSONからオブジェクトへ変換
+                                var p = JSON.parse(json);
+
+                                this.todos = p;
+                            }) 
+                            .catch(function (error) {
+                                alert(error);
+                            });    
+                    },
                     updateItem:function(){
                         //URLを取得
                         //let url = 'http://localhost:3000/todo/update';
                         let url = 'https://test-heroku-34819.herokuapp.com/todo/update'
 
                         //取得するファイル名を指定
-                        var json = { name: 'bbb.json' };
+                        var json = this.todos;
 
                         //保存したデータを取得する
                         fetch(url,
@@ -87,14 +157,13 @@
                             })
                             .then((response) => {
                                 if(response.ok) {
-                                    return response.json();
+                                    alert('登録完了です。')
                                 } else {
                                     throw new Error();
                                 }
                             })
                             .then(json => {   
-                                //デバッグ用 JSONからオブジェクトへ変換
-                                var p = JSON.parse(json);
+
                             }) 
                             .catch(function (error) {
                                 alert(error);
