@@ -60,7 +60,8 @@ let isLogined = function(req, res, next){
         }
     }else{
         //認証されていない場合
-        res.render('index', { title: 'TopPage' , message: 'LOGIN'});
+        var a = process.env.NAME;
+        res.render('index', { title: 'TopPage' , message: a});
     }
 };
 
