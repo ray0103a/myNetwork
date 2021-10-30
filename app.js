@@ -5,6 +5,11 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session')
 
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mainMenuRouter = require('./routes/mainMenu');
