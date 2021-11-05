@@ -38,7 +38,7 @@ router.get('/', function(req, res) {
 
         const client = new Client({
             connectionString: process.env.DATABASE_URL,
-            ssl: true
+            ssl: { rejectUnauthorized: false }
         });
 
         
