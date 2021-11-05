@@ -2,10 +2,53 @@ var express = require('express');
 var router = express.Router();
 const path = require('path');
 var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
-const fs = require('fs')
+const fs = require('fs');
+const { Client } = require('pg');
+
+
 
 router.get('/', function(req, res) {
-  res.render('todo', { title : 'todo' });
+    const query = {
+        text: 'SELECT * FROM USERS',
+        values: [],
+    }
+
+    async function main() {
+        var getUser;
+
+        /*
+        var client = new Client({
+            user: 'postgres',
+            host: 'localhost',
+            database: 'postgres',
+            password: 'post0103',
+            port: 5432
+        })
+        */
+        
+
+        var client = new Client({
+            user: process.env.USER,
+            host: process.env.HOST,
+            database: process.env.DATABASE,
+            password: process.env.PASSWORD,
+            port: process.env.PORT
+        })
+
+        
+        await client.connect()
+
+        client.query(query, (error,result)=>{
+            console.log(result);
+            getUser = result.rows[0].userid;
+
+            client.end();
+
+            res.render('todo', { title : getUser });
+        });
+    }
+
+    main();
 });
 
 router.post('/getItem', function(req, res) {

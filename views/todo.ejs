@@ -17,7 +17,7 @@
 </head>
 <body>
     <h1>共有メモ</h1>
-
+    <h1><%= title %></h1>
 
 
 
@@ -45,7 +45,10 @@
         <button class="btn btn-danger" v-on:click="updateItem">登録</button>
         <!--<pre>{{ $data }}</pre>-->
     </div>
+    
     <script src="https://unpkg.com/vue@3"></script>
+    <script src="/javascripts/myCommon.js"></script>
+
     <script>
         Vue.createApp({
             el:'#app',
@@ -59,7 +62,8 @@
                     window.onload = ()=>{
                         //URLを取得
                         //let url = 'http://localhost:3000/todo/getItem';
-                        let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+                        //let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+                        let url = getServerURL() + '/todo/getItem';
 
                         var data = this.todos;
 
@@ -108,7 +112,8 @@
                     getItem:function(){
                         //URLを取得
                         //let url = 'http://localhost:3000/todo/getItem';
-                        let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+                        //let url = 'https://test-heroku-34819.herokuapp.com/todo/getItem'
+                        let url = getServerURL() + '/todo/getItem';
 
                         var data = this.todos;
 
@@ -142,7 +147,8 @@
                     updateItem:function(){
                         //URLを取得
                         //let url = 'http://localhost:3000/todo/update';
-                        let url = 'https://test-heroku-34819.herokuapp.com/todo/update'
+                        //let url = 'https://test-heroku-34819.herokuapp.com/todo/update'
+                        let url = getServerURL() + '/todo/update';;
 
                         //取得するファイル名を指定
                         var json = this.todos;
