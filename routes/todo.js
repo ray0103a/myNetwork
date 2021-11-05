@@ -24,16 +24,22 @@ router.get('/', function(req, res) {
             password: 'post0103',
             port: 5432
         })
+        */
         
-        
-
+        /*
         var client = new Client({
             user: process.env.USER,
             host: process.env.HOST,
             database: process.env.DATABASE,
             password: process.env.PASSWORD,
-            port: process.env.PORT
+            port: 5432
         })
+        */
+
+        const client = new Client({
+            connectionString: process.env.DATABASE_URL,
+            ssl: true
+        });
 
         
         await client.connect()
@@ -44,11 +50,10 @@ router.get('/', function(req, res) {
 
             client.end();
 
-
-        });*/
+            res.render('todo', { title : getUser });
+        });
     }
-    getUser = process.env.USER;
-    res.render('todo', { title : getUser });
+
     main();
 });
 
