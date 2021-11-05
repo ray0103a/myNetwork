@@ -15,33 +15,24 @@ router.get('/', function(req, res) {
 
     async function main() {
         var getUser;
+        var client;
 
-        /*
-        var client = new Client({
-            user: 'postgres',
-            host: 'localhost',
-            database: 'postgres',
-            password: 'post0103',
-            port: 5432
-        })
-        */
-        
-        /*
-        var client = new Client({
-            user: process.env.USER,
-            host: process.env.HOST,
-            database: process.env.DATABASE,
-            password: process.env.PASSWORD,
-            port: 5432
-        })
-        */
+        if (process.env.NODE_ENV !== 'production') {
+            client = new Client({
+                user: 'postgres',
+                host: 'localhost',
+                database: 'postgres',
+                password: 'post0103',
+                port: 5432
+            })
+        }
+        else {
+            client = new Client({
+                connectionString: process.env.DATABASE_URL,
+                ssl: { rejectUnauthorized: false }
+            });
+        }
 
-        const client = new Client({
-            connectionString: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false }
-        });
-
-        
         await client.connect()
 
         client.query(query, (error,result)=>{
