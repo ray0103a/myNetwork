@@ -44,12 +44,11 @@ router.get('/', function(req, res) {
 
             client.end();
 
-            
+
         });*/
-
-        res.render('todo', { title : 'a' });
     }
-
+    getUser = process.env.USER;
+    res.render('todo', { title : getUser });
     main();
 });
 
