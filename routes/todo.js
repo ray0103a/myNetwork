@@ -53,7 +53,50 @@ router.post('/getItem', function(req, res) {
 
     var data = fs.readFileSync(todoPath, 'utf8')
 
-    res.json(data);
+    const query = {
+        text: 'SELECT * FROM TODO',
+        values: [],
+    }
+
+    async function main() {
+        var getUser;
+        var client;
+
+        if (process.env.NODE_ENV !== 'production') {
+            client = new Client({
+                user: 'postgres',
+                host: 'localhost',
+                database: 'postgres',
+                password: 'post0103',
+                port: 5432
+            })
+        }
+        else {
+            client = new Client({
+                connectionString: process.env.DATABASE_URL,
+                ssl: { rejectUnauthorized: false }
+            });
+        }
+
+        await client.connect()
+
+        client.query(query, (error,result)=>{
+            console.log(result);
+            //getUser = result.rows[0].NAME;
+
+            client.end();
+
+            var a = [];
+            a.push(result.rows[0]);
+            a.push(result.rows[0]);
+
+            res.json(a);
+        });
+    }
+
+    main();
+
+    
 });
 
 router.post('/update', function(req, res) {

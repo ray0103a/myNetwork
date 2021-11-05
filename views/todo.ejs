@@ -33,7 +33,7 @@
                 <!--<input type="checkbox" v-model="todo.isDone">--><!--チェックボックス同期-->
                 <div class="row">
                     <div class="col-8" style="font-size: 26px;">
-                        {{todo.item}}
+                        {{todo.name}}
                     </div><!--classの追加-->
                     <div class="col-4">
                         <button class="btn btn-danger" v-on:click="deleteItem(index)">削除</button>　<!--indexを引数に指定-->
@@ -86,9 +86,9 @@
                             })
                             .then(json => {   
                                 //デバッグ用 JSONからオブジェクトへ変換
-                                var p = JSON.parse(json);
+                                //var p = JSON.parse(json);
 
-                                this.todos = p;
+                                this.todos = json;
                             }) 
                             .catch(function (error) {
                                 alert(error);
