@@ -24,7 +24,7 @@ router.get('/', function(req, res) {
             password: 'post0103',
             port: 5432
         })
-        */
+        
         
 
         var client = new Client({
@@ -44,8 +44,10 @@ router.get('/', function(req, res) {
 
             client.end();
 
-            res.render('todo', { title : getUser });
-        });
+            
+        });*/
+
+        res.render('todo', { title : 'a' });
     }
 
     main();
