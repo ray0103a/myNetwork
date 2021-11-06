@@ -136,9 +136,9 @@
                             })
                             .then(json => {   
                                 //デバッグ用 JSONからオブジェクトへ変換
-                                var p = JSON.parse(json);
+                                //var p = JSON.parse(json);
 
-                                this.todos = p;
+                                this.todos = json;
                             }) 
                             .catch(function (error) {
                                 alert(error);

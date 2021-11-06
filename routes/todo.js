@@ -5,7 +5,23 @@ var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
 const fs = require('fs');
 const { Client } = require('pg');
 
+var connectionString;
 
+if (process.env.NODE_ENV !== 'production') {
+    connectionString = {
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: 'post0103',
+        port: 5432
+    };
+}
+else {
+    connectionString = {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    };
+}
 
 router.get('/', function(req, res) {
     const query = {
@@ -15,23 +31,7 @@ router.get('/', function(req, res) {
 
     async function main() {
         var getUser;
-        var client;
-
-        if (process.env.NODE_ENV !== 'production') {
-            client = new Client({
-                user: 'postgres',
-                host: 'localhost',
-                database: 'postgres',
-                password: 'post0103',
-                port: 5432
-            })
-        }
-        else {
-            client = new Client({
-                connectionString: process.env.DATABASE_URL,
-                ssl: { rejectUnauthorized: false }
-            });
-        }
+        var client = new Client(connectionString);
 
         await client.connect()
 
@@ -60,23 +60,7 @@ router.post('/getItem', function(req, res) {
 
     async function main() {
         var getUser;
-        var client;
-
-        if (process.env.NODE_ENV !== 'production') {
-            client = new Client({
-                user: 'postgres',
-                host: 'localhost',
-                database: 'postgres',
-                password: 'post0103',
-                port: 5432
-            })
-        }
-        else {
-            client = new Client({
-                connectionString: process.env.DATABASE_URL,
-                ssl: { rejectUnauthorized: false }
-            });
-        }
+        var client = new Client(connectionString);
 
         await client.connect()
 
@@ -111,23 +95,7 @@ router.post('/update', function(req, res) {
 
     async function main() {
         var getUser;
-        var client;
-
-        if (process.env.NODE_ENV !== 'production') {
-            client = new Client({
-                user: 'postgres',
-                host: 'localhost',
-                database: 'postgres',
-                password: 'post0103',
-                port: 5432
-            })
-        }
-        else {
-            client = new Client({
-                connectionString: process.env.DATABASE_URL,
-                ssl: { rejectUnauthorized: false }
-            });
-        }
+        var client = new Client(connectionString);
 
         try {
             await client.connect()
@@ -155,20 +123,6 @@ router.post('/update', function(req, res) {
 
             res.status(200).send('OK');
         }
-
-
-
-
-
-        //await client.connect()
-
-        //client.query(delQuery, (error,result)=>{
-        //    console.log(result);
-        //});
-
-
-        //client.end();
-        
     }
 
     main();
