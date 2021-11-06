@@ -45,7 +45,7 @@ app.use(session({
     resave:false,
     saveUninitialized:false,
     rolling: true,                  //cookieが有効期限が都度更新されるか
-    cookie: {maxAge:1 * 60 * 1000}, //有効期限 1ミリ秒(1/1000秒) * 1000 = 1秒
+    cookie: {maxAge:1 * 60 * 120 * 1000}, //有効期限 1ミリ秒(1/1000秒) * 1000 = 1秒
     secret: 'passport test' }));
 app.use(passport.initialize());
 app.use(passport.session());

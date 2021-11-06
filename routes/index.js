@@ -67,7 +67,7 @@ let isLogined = function(req, res, next){
 
 router.get('/', isLogined, function(req, res, next) {
     //認証が既にされている場合は、メインメニューを表示する
-    res.render('mainMenu', { title : 'mainMenu' });
+    res.render('todo', { title : 'todo' });
 });
 
 /* ErrorPage */
@@ -92,7 +92,7 @@ router.post('/',passport.authenticate('local',
             //await myServer.writeLog(req.user.username, "ログインしました。");
 
             //メインメニューへ遷移
-            res.render('mainMenu', { title : 'Self Introduction' });
+            res.render('todo', { title : 'Self Introduction' });
             //res.send('Success');
         }
 

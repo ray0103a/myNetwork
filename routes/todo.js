@@ -23,7 +23,25 @@ else {
     };
 }
 
-router.get('/', function(req, res) {
+let isLogined = function(req, res, next){
+    console.log(req.user);
+    if(req.isAuthenticated()){
+        //認証されている場合
+        if (req.user.myKey == 'zzz') {
+            //ログインOKの場合(router.getの中が処理される)
+            return next();
+        } else {
+            //権限がない場合
+            res.redirect("/");
+        }
+    }else{
+        //認証されていない場合
+        res.redirect("/");
+    }
+};
+
+//router.get('/', function(req, res) {
+router.get('/', isLogined, function(req, res, next) {
     const query = {
         text: 'SELECT * FROM USERS',
         values: [],
