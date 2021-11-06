@@ -87,10 +87,11 @@ router.post('/getItem', function(req, res) {
             client.end();
 
             var a = [];
-            a.push(result.rows[0]);
-            a.push(result.rows[0]);
+            a.push(result.rows)
+            //a.push(result.rows[0]);
+            //a.push(result.rows[1]);
 
-            res.json(a);
+            res.json(result.rows);
         });
     }
 
@@ -100,56 +101,77 @@ router.post('/getItem', function(req, res) {
 });
 
 router.post('/update', function(req, res) {
-    //Requestされたファイル名を取得
-    var data = req.body;
-    var todoPath = path.resolve() + '/public/json/todo.json';
+    var insQuery, delQuery;
+    var todos = req.body;
 
-    async function writeJson() {
-        try {
-            fs.writeFileSync(todoPath, JSON.stringify(data))
-        } catch (err) {
-            console.error(err)
+    var delQuery = {
+        text: 'DELETE FROM TODO',
+        values: [],
+    }
+
+    async function main() {
+        var getUser;
+        var client;
+
+        if (process.env.NODE_ENV !== 'production') {
+            client = new Client({
+                user: 'postgres',
+                host: 'localhost',
+                database: 'postgres',
+                password: 'post0103',
+                port: 5432
+            })
         }
+        else {
+            client = new Client({
+                connectionString: process.env.DATABASE_URL,
+                ssl: { rejectUnauthorized: false }
+            });
+        }
+
+        try {
+            await client.connect()
+            console.log('接続完了')
+            var results = await client.query(delQuery)
+            //console.table(results.rows)        
+
+
+            for (i = 0; i < todos.length; i++) {
+                var ins1 = todos[i].name;
+        
+                insQuery = {
+                    text: 'INSERT INTO TODO VALUES($1, $2)',
+                    values: [ins1, 'test'],
+                }     
+
+                var results2 = await client.query(insQuery)
+            }
+        }
+        catch (e) {
+            console.log(e)
+        }
+        finally {
+            await client.end()
+
+            res.status(200).send('OK');
+        }
+
+
+
+
+
+        //await client.connect()
+
+        //client.query(delQuery, (error,result)=>{
+        //    console.log(result);
+        //});
+
+
+        //client.end();
+        
     }
 
-    async function funcSelect() {
-
-
-
-        /*
-        await myServer.insertNeDb('test').then(function(result) {
-            checkPass = '';
-        }).catch(function(value) {
-            // 非同期処理が失敗した場合
-            console.log('実行結果:' + value);
-        });    
-
-
-        await myServer.selectNeDb('test').then(function(result) {
-            checkPass = result;
-        }).catch(function(value) {
-            // 非同期処理が失敗した場合
-            console.log('実行結果:' + value);
-        });
-        */
-        var data = 'aaa';
-        res.status(200).send('OK');
-    }
-    writeJson();
-    funcSelect();
-
-    //保存されているベースパス
-    /*
-    var folPath = path.resolve() + '/public/logs/'
-
-    folPath = folPath + myFileName
-    //var testPath = path.resolve(__dirname, '..');
-    //testPath = testPath + '/' + myFileName
-
-    const fs = require("fs");
-    let text = fs.readFileSync(folPath, "utf-8");
-    */
-    
+    main();
 });
 
 module.exports = router;

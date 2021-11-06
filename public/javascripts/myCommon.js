@@ -7,7 +7,8 @@
     var serverURL;
 
     //serverURL = 'http://192.168.0.11:3000';
-    serverURL = 'https://test-heroku-34819.herokuapp.com';
+    //serverURL = 'https://test-heroku-34819.herokuapp.com';
+    serverURL = location.protocol + '//' + location.host
 
     return serverURL;
 }
