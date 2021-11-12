@@ -127,9 +127,11 @@
             </li>
         </ul>
         
+        <!--
         <div class="d-flex flex-column align-items-center justify-content-center">
             <button class="btn btn-danger" v-on:click="updateItem">登録</button>
         </div>
+        -->
         
         <!--<pre>{{ $data }}</pre>-->
 
@@ -223,15 +225,80 @@
                     addItem:function(event){
                         //タスク未入力の場合は追加しない
                         if(this.newItem == '')return; 
+
                         var todo = {
                             name: this.newItem,
                             isDone:false
                         };
-                        this.todos.push(todo);
-                        this.newItem = '' //タスク追加後に入力欄を空にする
+                        
+                        //URLを取得
+                        let url = getServerURL() + '/todo/insData';;
+
+                        //取得するファイル名を指定
+                        var json = todo;
+
+                        //サーバーにデータを追加する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(json)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    //this.todos.push(todo);
+                                    //サーバーの最新情報を取得する
+                                    this.getItem();
+                                    this.newItem = '' //タスク追加後に入力欄を空にする
+                                } else {
+                                    alert('エラーが発生しました。管理者へ連絡してください。')
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+
+                            }) 
+                            .catch(function (error) {
+                                //alert(error);
+                            });    
                     },
                     deleteItem:function(index){ //indexを引数に指定
-                        this.todos.splice(index,1) //indexで指定された要素を1つ削除
+                        var delTodo = this.todos[index];
+                        
+                        //URLを取得
+                        let url = getServerURL() + '/todo/delData';;
+
+                        //取得するファイル名を指定
+                        var json = delTodo;
+
+                        //保存したデータを取得する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(json)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    //サーバーの最新情報を取得する
+                                    this.getItem();
+                                } else {
+                                    alert('エラーが発生しました。管理者へ連絡してください。')
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+
+                            }) 
+                            .catch(function (error) {
+                                //alert(error);
+                            });    
                     },
                     getItem:function(){
                         //URLを取得

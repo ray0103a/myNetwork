@@ -102,6 +102,81 @@ router.post('/getItem', function(req, res) {
     
 });
 
+router.post('/insData', function(req, res) {
+    var insQuery, delQuery;
+    var todo = req.body;
+
+    async function main() {
+        var getUser;
+        var client = new Client(connectionString);
+
+        try {
+            await client.connect()
+            console.log('接続完了')
+
+            var ins1 = todo.name;
+        
+            insQuery = {
+                text: 'INSERT INTO TODO(name, other) VALUES($1, $2)',
+                values: [ins1, 'test'],
+            }     
+
+            var results2 = await client.query(insQuery)
+
+            res.status(200).send('OK');
+        }
+        catch (e) {
+            res.status(400).send('NG');
+            console.log(e)
+        }
+        finally {
+            await client.end()
+        }
+    }
+
+    main();
+});
+
+router.post('/delData', function(req, res) {
+    var delQuery;
+    var delID = req.body.id;
+
+    async function main() {
+        var getUser;
+        var client = new Client(connectionString);
+
+        try {
+            await client.connect()
+            console.log('接続完了')
+        
+            delQuery = {
+                text: 'DELETE FROM TODO WHERE id = $1',
+                values: [delID],
+            }     
+
+            var results2 = await client.query(delQuery)
+
+            res.status(200).send('OK');
+        }
+        catch (e) {
+            res.status(400).send('NG');
+            console.log(e)
+        }
+        finally {
+            await client.end()
+        }
+    }
+
+    main();
+});
+
+
+
+
+
+
+
+
 router.post('/update', function(req, res) {
     var insQuery, delQuery;
     var todos = req.body;
