@@ -126,7 +126,7 @@ router.post('/update', function(req, res) {
                 var ins1 = todos[i].name;
         
                 insQuery = {
-                    text: 'INSERT INTO TODO VALUES($1, $2)',
+                    text: 'INSERT INTO TODO(name, other) VALUES($1, $2)',
                     values: [ins1, 'test'],
                 }     
 
