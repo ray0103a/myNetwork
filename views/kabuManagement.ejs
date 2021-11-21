@@ -25,6 +25,11 @@
     </div>
 
     <div class="mb-3">
+        <label for="uriage" class="form-label">売上高</label>
+        <input type="text" class="form-control" id="uriage" aria-describedby="emailHelp">
+    </div>
+
+    <div class="mb-3">
         <label for="rieki" class="form-label">当期純利益</label>
         <input type="text" class="form-control" id="rieki" aria-describedby="emailHelp">
     </div>
@@ -33,14 +38,34 @@
 
     <canvas id="mychart-bar-stack" width="400" height="400"></canvas>
 
-    <div class="mb-3">
-        <label for="roe" class="form-label">ROE</label>
-        <input type="text" id="roe" class="form-control" placeholder="">
+    <div class="container" style="background-color: rgb(134, 248, 248);">
+        <div class="mb-3">
+            <label for="roe" class="form-label">売上高純利益率</label>
+            <input type="text" id="uri" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="roe" class="form-label">総資産回転率</label>
+            <input type="text" id="soukai" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="roe" class="form-label">財務レバレッジ</label>
+            <input type="text" id="zaimu" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="roe" class="form-label">ROE(自己資本利益率)</label>
+            <input type="text" id="roe" class="form-control" placeholder="">
+        </div>
+
+        <br>
     </div>
 
-    <div class="mb-3">
-        <label for="roa" class="form-label">ROA</label>
-        <input type="text" id="roa" class="form-control" placeholder="">
+    <div class="container" style="background-color: rgb(250, 178, 150);">
+        <div class="mb-3">
+            <label for="roa" class="form-label">ROA(総資産利益率)</label>
+            <input type="text" id="roa" class="form-control" placeholder="">
+        </div>
+        <br>
     </div>
 
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>-->
@@ -67,13 +92,18 @@
             var sisan = document.getElementById('sisan');
             var husai = document.getElementById('husai');
             var junsisan = document.getElementById('junsisan');
+            var uriage = document.getElementById('uriage');
             var rieki = document.getElementById('rieki');
+            var uri = document.getElementById('uri');
+            var soukai = document.getElementById('soukai');
+            var zaimu = document.getElementById('zaimu');
             var roe = document.getElementById('roe');
             var roa = document.getElementById('roa');
 
             var sisanVal = sisan.value;
             var husaiVal = husai.value;
             var junsisanVal = junsisan.value;
+            var uriageVal = uriage.value;
             var riekiVal = rieki.value;
 
             dataAsset = [];
@@ -88,6 +118,9 @@
             dataCapital.push(0);
             dataCapital.push(junsisanVal);
 
+            uri.value = riekiVal / uriageVal;
+            soukai.value = uriageVal / sisanVal;
+            zaimu.value = sisanVal / junsisanVal;
             roe.value = (riekiVal / junsisanVal * 100) + '%';
             roa.value = (riekiVal / sisanVal * 100) + '%';
 
@@ -128,7 +161,7 @@
                             categoryPercentage: 1.0,      //棒グラフ幅
                             scaleLabel: {                 //軸ラベル設定
                             display: true,             //表示設定
-                            labelString: '横軸ラベル',  //ラベル
+                            labelString: '',  //ラベル
                             fontSize: 18               //フォントサイズ
                             },
                             ticks: {
