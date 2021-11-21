@@ -20,6 +20,8 @@ var qrcodeRouter = require('./routes/qrcode');
 var qrtestRouter = require('./routes/qrtest');
 var qrtest2Router = require('./routes/qrtest2');
 var todoRouter = require('./routes/todo');
+var kabuManagementRouter = require('./routes/kabuManagement');
+
 
 var app = express();
 
@@ -103,6 +105,8 @@ app.use('/barcode', barcodeRouter);
 app.use('/barcode2', barcode2Router);
 app.use('/barcode3', barcode3Router);
 app.use('/todo', todoRouter);
+app.use('/kabuManagement', kabuManagementRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

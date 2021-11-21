@@ -63,6 +63,24 @@
         </ul>
     </form>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/TextPlugin.min.js"></script>
+    
+    <script>
+        function test(){
+            //gsap.to('#mySubmitButton', 1.0, { width: '10%', height: 150 }); // 
+
+            gsap.to("#mySubmitButton", {
+                duration: 2,
+                text: {
+                    value: "This is the new text",
+                    delimiter: " "
+                },
+                ease: "none"
+            });
+        }
+    </script>
+
     <script>
         function postLogin(){
             const spinner = document.getElementById('loading');
