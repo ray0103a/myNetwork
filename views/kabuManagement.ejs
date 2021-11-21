@@ -10,6 +10,16 @@
     <h1>経営状態算出</h1>
 
     <div class="mb-3">
+        <label for="uriage" class="form-label">売上高</label>
+        <input type="text" class="form-control" id="uriage" aria-describedby="emailHelp">
+    </div>
+
+    <div class="mb-3">
+        <label for="rieki" class="form-label">当期純利益</label>
+        <input type="text" class="form-control" id="rieki" aria-describedby="emailHelp">
+    </div>
+
+    <div class="mb-3">
         <label for="sisan" class="form-label">資産</label>
         <input type="text" class="form-control" id="sisan" aria-describedby="emailHelp">
     </div>
@@ -24,15 +34,7 @@
         <input type="text" class="form-control" id="junsisan" aria-describedby="emailHelp">
     </div>
 
-    <div class="mb-3">
-        <label for="uriage" class="form-label">売上高</label>
-        <input type="text" class="form-control" id="uriage" aria-describedby="emailHelp">
-    </div>
 
-    <div class="mb-3">
-        <label for="rieki" class="form-label">当期純利益</label>
-        <input type="text" class="form-control" id="rieki" aria-describedby="emailHelp">
-    </div>
 
     <button type="button" class="btn btn-primary" onclick="buttonClick()">計算</button>
 
@@ -48,6 +50,14 @@
             <input type="text" id="soukai" class="form-control">
         </div>
         <div class="mb-3">
+            <label for="roa" class="form-label">ROA(総資産利益率)</label>
+            <input type="text" id="roa" class="form-control" placeholder="">
+        </div>
+        <br>
+    </div>
+
+    <div class="container" style="background-color: rgb(250, 178, 150);">
+        <div class="mb-3">
             <label for="roe" class="form-label">財務レバレッジ</label>
             <input type="text" id="zaimu" class="form-control">
         </div>
@@ -55,15 +65,6 @@
         <div class="mb-3">
             <label for="roe" class="form-label">ROE(自己資本利益率)</label>
             <input type="text" id="roe" class="form-control" placeholder="">
-        </div>
-
-        <br>
-    </div>
-
-    <div class="container" style="background-color: rgb(250, 178, 150);">
-        <div class="mb-3">
-            <label for="roa" class="form-label">ROA(総資産利益率)</label>
-            <input type="text" id="roa" class="form-control" placeholder="">
         </div>
         <br>
     </div>
@@ -118,12 +119,11 @@
             dataCapital.push(0);
             dataCapital.push(junsisanVal);
 
-            uri.value = riekiVal / uriageVal;
-            soukai.value = uriageVal / sisanVal;
+            uri.value = (((Math.round(riekiVal / uriageVal * 100)) / 100) * 100).toFixed() + '%';
+            soukai.value = (Math.round(uriageVal / sisanVal * 100)) / 100;
             zaimu.value = sisanVal / junsisanVal;
-            roe.value = (riekiVal / junsisanVal * 100) + '%';
-            roa.value = (riekiVal / sisanVal * 100) + '%';
-
+            roe.value = (Math.round(riekiVal / junsisanVal * 100)) / 100 * 100 + '%';
+            roa.value = (Math.round(riekiVal / sisanVal * 100)) / 100 * 100 + '%';
             drawChart();
         }
 
