@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.1, maximum-scale=4,user-scalable=yes">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+</head>
+<body>
+    <h1>財務諸表</h1>
+
+    
+    <div id="app">
+        <div class="mb-3">
+            <label for="inputKey" class="form-label">会社名を入力してください(英語)</label>
+            <input type="text" class="form-control" id="inputKey" v-model="inputKey">
+        </div>
+
+        <button type="button" v-on:click="getCompany" class="btn btn-primary">会社一覧取得</button>
+
+        <select v-model="selected">
+            <option v-for="option in options" v-bind:value="option.cik_str">
+                {{ option.title }}
+            </option>
+        </select>
+
+        <button type="button" v-on:click="test3" class="btn btn-primary">ttt</button>
+
+        <table>
+            <tr v-for="(value, key) in lists">
+                <td> {{key}} </td>
+                <td> {{value.start}} </td>
+                <td> {{value.end}} </td>
+                <td> {{value.val}} </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>-->
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="/javascripts/myCommon.js"></script>
+
+    <script>
+        Vue.createApp({
+            el:'#app',
+                data() {
+                    return {
+                        selected: '',
+                        options: [],
+                        inputKey: "",
+                        lists: []
+                    }
+                },
+                mounted() {
+                    window.onload = ()=>{
+
+                    }
+                },
+                methods:{
+                    getCompany:function(){
+                        var a = this.inputKey;
+                        var b = {"inputKey" : a};
+
+                        //URLを取得
+                        let url = getServerURL() + '/edgar/getList';
+
+                        //保存したデータを取得する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(b)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+                                //デバッグ用 JSONからオブジェクトへ変換
+                                //var p = JSON.parse(json);
+
+                                this.options = json;
+                            }) 
+                            .catch(function (error) {
+                                alert(error);
+                            });    
+                    },
+                    test3:function(){
+                        var cik = this.selected;
+                        var b = {"cik" : cik};
+
+                        //URLを取得
+                        let url = getServerURL() + '/edgar/getCompany';
+
+                        //保存したデータを取得する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(b)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    return response.json();
+                                } else {
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+                                //デバッグ用 JSONからオブジェクトへ変換
+                                //var p = JSON.parse(json);
+
+                                this.lists = json;
+                            }) 
+                            .catch(function (error) {
+                                alert(error);
+                            });   
+                    },
+                    test:function(event){
+                        //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/AccountsPayableCurrent.json
+                        //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
+                        //https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json
+                        //https://data.sec.gov/submissions/CIK0000320193.json
+                        var url = 'https://www.sec.gov/files/company_tickers.json';
+                        var onLoadFunc;
+
+                        const myHeaders = new Headers();
+                        myHeaders.append('Content-Type', 'text/plain');
+
+                        fetch(url, {mode: 'cors'})
+                            .then((res) => {
+                                if (!res.ok) {
+                                    throw new Error(`${res.status} ${res.statusText}`);
+                                }
+                                return res.json();
+                            })
+                            .then((blob) => {
+                                var a = blob;
+                            })
+                            .catch((reason) => {
+                                console.log(reason);
+                            });
+                    },
+                }
+        }).mount('#app');
+
+    </script>
+
+
+    <script>
+        function test(){
+            //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/AccountsPayableCurrent.json
+            //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
+            //https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json
+            //https://data.sec.gov/submissions/CIK0000320193.json
+            var url = 'https://www.sec.gov/files/company_tickers.json';
+            var onLoadFunc;
+
+            const myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'text/plain');
+
+            fetch(url, {mode: 'cors'})
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`${res.status} ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then((blob) => {
+                    var a = blob;
+                })
+                .catch((reason) => {
+                    console.log(reason);
+                });
+
+            /*
+            fetch('https://data.sec.gov/submissions/CIK0000320193.json', {
+            mode: 'cors'
+            }).then(onLoadFunc);
+
+            jQuery.getJSON(url, function (data) {
+                var a = data;
+                alert('取得！');
+            });
+            */
+        }
+
+
+
+        var dataAsset = [];
+        var dataHusai = [];
+        var dataCapital = [];
+
+
+    </script>
+  </body>
+</html>

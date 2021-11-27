@@ -71,10 +71,49 @@
 
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.0/Chart.min.js"></script>
-    <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!--<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>-->
 
     <script>
+        function test(){
+            //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/AccountsPayableCurrent.json
+            //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
+            //https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json
+            //https://data.sec.gov/submissions/CIK0000320193.json
+            var url = 'https://data.sec.gov/api/xbrl/frames/us-gaap/AccountsPayableCurrent/USD/CY2019Q1I.json';
+            var onLoadFunc;
+
+            const myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'text/plain');
+
+            fetch(url, {mode: 'cors'})
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`${res.status} ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then((blob) => {
+                    var a = blob;
+                })
+                .catch((reason) => {
+                    console.log(reason);
+                });
+
+            /*
+            fetch('https://data.sec.gov/submissions/CIK0000320193.json', {
+            mode: 'cors'
+            }).then(onLoadFunc);
+
+            jQuery.getJSON(url, function (data) {
+                var a = data;
+                alert('取得！');
+            });
+            */
+        }
+
+
+
         var dataAsset = [];
         var dataHusai = [];
         var dataCapital = [];
