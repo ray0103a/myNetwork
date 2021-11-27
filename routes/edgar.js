@@ -219,26 +219,31 @@ router.post('/getCompany', function(req, res, next) {
         // ダウンロードする
         var rss = ''; 
         var req = https.get(options, function (resData) {
-            // テキストファイルの場合は、エンコード指定は重要！
-            resData.setEncoding('utf8');
+            if (resData.statusCode == '200') {
+                // テキストファイルの場合は、エンコード指定は重要！
+                resData.setEncoding('utf8');
 
-            // データを受け取るたびに、文字列を追加
-            resData.on('data', function (xml) {
-                rss += xml;
-            });
+                // データを受け取るたびに、文字列を追加
+                resData.on('data', function (xml) {
+                    rss += xml;
+                });
 
-            // ファイルのダウンロードが終わるとendイベントが呼ばれる
-            resData.on('end', function () {
-                console.log('finish loading rss feed.');
-                
-                var rrr = JSON.parse(rss);
+                // ファイルのダウンロードが終わるとendイベントが呼ばれる
+                resData.on('end', function () {
+                    console.log('finish loading rss feed.');
+                    
+                    var rrr = JSON.parse(rss);
 
-                var aa = rrr['facts']['us-gaap']['Assets']['units']['USD']
-                var bb = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+                    var aa = rrr['facts']['us-gaap']['Assets']['units']['USD']
+                    var bb = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
 
 
-                res.json(bb);
-            }); 
+                    res.json(bb);
+                }); 
+            }
+            else {
+                res.status(resData.statusCode).send(resData.statusCode + 'Error!')
+            }
         });
     }
 
