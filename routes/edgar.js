@@ -5,8 +5,12 @@ var https = require('https');
 
 //var fetch2 = require('node-fetch');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
+    res.render('edgar', { title: 'edgar' });
+});
+
+/* GET home page. */
+router.get('/aaaaa', function(req, res, next) {
     /*
     res.header('Access-Control-Allow-Origin', '*')
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
