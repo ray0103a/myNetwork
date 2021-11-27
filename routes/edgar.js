@@ -242,7 +242,8 @@ router.post('/getCompany', function(req, res, next) {
                 }); 
             }
             else {
-                res.status(resData.statusCode).send(resData.statusCode + 'Error!')
+                res.status(resData.statusCode);
+                res.send('error');
             }
         });
     }
