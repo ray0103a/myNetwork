@@ -160,7 +160,10 @@ router.post('/getList', function(req, res, next) {
                 var rrr = JSON.parse(rss);
 
                 var result = {};
-                var keyCount = 0;
+
+                result[0] = '';
+
+                var keyCount = 1;
 
                 //var seaKey = 'AP';
 
@@ -199,7 +202,7 @@ router.post('/getCompany', function(req, res, next) {
 
     //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
     var myPath = 'https://data.sec.gov/api/xbrl/companyfacts/CIK' + cikKey + '.json'
-    myPath = 'https://data.sec.gov/api/xbrl/companyconcept/CIK' + cikKey + '/us-gaap/CashAndCashEquivalentsAtCarryingValue.json'
+    //myPath = 'https://data.sec.gov/api/xbrl/companyconcept/CIK' + cikKey + '/us-gaap/CashAndCashEquivalentsAtCarryingValue.json'
 
     async function main() {
         //大事なのはhostnameの'data.sec.gov'　←ここのdata.sec.gov なのか www.sec.govなのか
@@ -236,17 +239,41 @@ router.post('/getCompany', function(req, res, next) {
                     
                     var rrr = JSON.parse(rss);
 
-                    var bb = rrr['units']['USD']
-                    //var aa = rrr['facts']['us-gaap']['Assets']['units']['USD']
-                    //var bb = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+                    var rtJsonList = {};
 
+                    var assets;
+                    var netIncome;
 
-                    res.json(bb);
+                    try {
+                        var assets = rrr['facts']['us-gaap']['Assets']['units']['USD']
+                        var netIncome = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+
+                        if (!assets) {
+                            //CNYが何かわからないので、エラー処理として現状は処理する
+                            rtJsonList.Not = '{data : NotFoundDayo}'
+                            //assets = rrr['facts']['us-gaap']['Assets']['units']['CNY']
+                            //netIncome = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['CNY']
+                        }
+                        else {
+                            rtJsonList.Assets = assets;
+                            rtJsonList.NetIncomeLoss = netIncome;
+                        }
+                    } catch (error) {
+                        rtJsonList.Not = '{data : NotFoundDayo}'
+                    }
+
+                    res.json(rtJsonList);
                 }); 
             }
             else {
-                res.status(resData.statusCode);
-                res.send('error');
+                //res.status(resData.statusCode);
+                //res.send('error');
+
+                res.status(200);
+                //res.send('OK')
+                var rtJsonList = {};
+                rtJsonList.Not = '{data : NotFoundDayo}'
+                res.json(rtJsonList);
             }
         });
     }

@@ -11,22 +11,39 @@
 
     
     <div id="app">
-        <div class="mb-3">
-            <label for="inputKey" class="form-label">会社名を入力してください(英語)</label>
-            <input type="text" class="form-control" id="inputKey" v-model="inputKey">
+        <label for="inputKey" class="form-label">会社名を入力してください(英語)</label>
+
+        <div class="row">
+            <div class="col-9">
+                
+                <input type="text" class="form-control" id="inputKey" v-model="inputKey">
+            </div>
+    
+            <div class="col-3">
+                <button type="button" v-on:click="getCompany" class="btn btn-primary">取得</button>
+            </div>
         </div>
 
-        <button type="button" v-on:click="getCompany" class="btn btn-primary">会社一覧取得</button>
+        <br>
 
-        <select v-model="selected">
-            <option v-for="option in options" v-bind:value="option.cik_str">
-                {{ option.title }}
-            </option>
-        </select>
+        <div class="row">
+            <div class="col-9">
+                <select v-model="selected" class="form-select">
+                    <option v-for="option in options" v-bind:value="option.cik_str">
+                        {{ option.title }}
+                    </option>
+                </select>
+            </div>
 
-        <button type="button" v-on:click="test3" class="btn btn-primary">ttt</button>
+            <div class="col-3">
+                <button type="button" v-on:click="getCompanyData" class="btn btn-primary">検索</button>
+            </div>
+        </div>
 
-        <table>
+        <button type="button" v-on:click="drawNetIncomeLoss" class="btn btn-primary">draw</button>
+        <canvas id="mychart-bar-stack" width="400" height="400"></canvas>
+
+        <table class="table">
             <tr v-for="(value, key) in lists">
                 <td> {{key}} </td>
                 <td> {{value.start}} </td>
@@ -45,6 +62,8 @@
     <script src="/javascripts/myCommon.js"></script>
 
     <script>
+        var myChart2;
+
         Vue.createApp({
             el:'#app',
                 data() {
@@ -52,7 +71,9 @@
                         selected: '',
                         options: [],
                         inputKey: "",
-                        lists: []
+                        lists: [],
+                        NetIncomeYearLists: [],
+                        NetIncomeLists: [],
                     }
                 },
                 mounted() {
@@ -95,7 +116,7 @@
                                 alert(error);
                             });    
                     },
-                    test3:function(){
+                    getCompanyData:function(){
                         var cik = this.selected;
                         var b = {"cik" : cik};
 
@@ -123,13 +144,136 @@
                                 //デバッグ用 JSONからオブジェクトへ変換
                                 //var p = JSON.parse(json);
 
-                                this.lists = json;
+                                if (json.Not) {
+                                    alert('データが存在しません。');
+                                    return;
+                                }
+
+                                var NetJson = [];
+                                this.NetIncomeYearLists = [];
+                                this.NetIncomeLists = [];
+
+                                this.lists = json.NetIncomeLoss;
+
+                                for (i = 0; i < json.NetIncomeLoss.length; i++) {
+                                    var st = json.NetIncomeLoss[i].start;
+                                    var en = json.NetIncomeLoss[i].end;
+                                    var val = json.NetIncomeLoss[i].val;
+                                    var fp = json.NetIncomeLoss[i].fp;
+                                    var form = json.NetIncomeLoss[i].form;
+
+                                    var yyyy = st.substring(0,4);
+                                    var mm = st.substring(5,7);
+                                    var dd = st.substring(8,10);
+                                    var date1 = new Date(yyyy, mm, dd);
+
+                                    var eyyyy = en.substring(0,4);
+                                    var emm = en.substring(5,7);
+                                    var edd = en.substring(8,10);
+                                    var date2 = new Date(eyyyy, emm, edd);
+
+                                    var termDay = (date2 - date1) / 86400000;
+                                    var checkForm = form.substring(0,4);
+
+                                    //単位を(100万ドル)に変換
+                                    val = val / 1000000;
+
+                                    //if (fp == 'Q1' || fp == 'Q2' || fp == 'Q3' || fp == 'FY') {
+                                    if (checkForm == '10-K') {
+                                        //if (termDay > 80 && termDay < 100) {
+                                        if (termDay > 355) {
+                                            var addData = eyyyy + checkForm;
+
+                                            var myFlg = false;
+                                            NetJson.find(x => {
+                                                if (x.date ==  addData){
+                                                    x.val = val
+                                                    myFlg = true;
+                                                };
+                                            });
+
+                                            if (!myFlg) {
+                                                var newData = {date: addData, val: val}
+                                                NetJson.push(newData);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                var a = [];
+                                var b = [];
+
+                                for (z = 0; z < NetJson.length; z++) {
+                                    a.push(NetJson[z].date);
+                                    b.push(NetJson[z].val);
+                                }
+                                this.NetIncomeYearLists.push(a);
+                                this.NetIncomeLists.push(b);
+                                
                             }) 
                             .catch(function (error) {
                                 alert(error);
                             });   
+
+                            var ti = function(){
+                                this.drawNetIncomeLoss();
+                            }.bind(this);
+                            setTimeout(ti, 2000);
+                        
                     },
-                    test:function(event){
+                    drawNetIncomeLoss:function(){
+                        var ctx2 = document.getElementById('mychart-bar-stack');
+
+                        var z = this.NetIncomeLists;
+                        
+                        //alert(z);
+                        if (myChart2) {
+                            myChart2.destroy();
+                        }
+
+                        try {
+                            myChart2 = new Chart(ctx2, {
+                                type: 'line',
+                                data: {
+                                    labels: this.NetIncomeYearLists[0],
+                                    datasets: [
+                                        {
+                                            label: "系列Ａ",                      // 系列名
+                                            data: this.NetIncomeLists[0],           // 系列Ａのデータ
+                                            tension: 0.5,                         // ★　グラフの線、０ 直線,  ＞０ 曲線
+                                            fill: true,                           // ★　線とＸ軸で囲まれた範囲の描画 true する, false しない 
+                                            backgroundColor: "rgba(255,0,0,0.2)", // ★　その範囲の色 fill: false のとき不要
+                                            borderColor: "red",                   // グラフの線の色
+                                            borderWidth: 2                        // グラフの線の太さ
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,  // canvasサイズ自動設定機能を使わない
+                                    title: {                                             // タイトル表示
+                                        display: true,
+                                        fontSize: 18,
+                                        text: "当期純利益(単位:100万ドル)"
+                                    },
+                                    legend: {                                            // 凡例非表示
+                                        display: false,
+                                    }
+                                }
+                            });
+                        
+
+                        } catch( e ) {
+                            alert(e);
+                        
+
+                        }
+
+
+                    },
+                    test222:function(){
+
+                    },
+                    test333:function(event){
                         //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/AccountsPayableCurrent.json
                         //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
                         //https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json
