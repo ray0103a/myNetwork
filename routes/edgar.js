@@ -197,7 +197,9 @@ router.post('/getCompany', function(req, res, next) {
         cikKey = '0' + cikKey;
     }
 
+    //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/CashAndCashEquivalentsAtCarryingValue.json
     var myPath = 'https://data.sec.gov/api/xbrl/companyfacts/CIK' + cikKey + '.json'
+    myPath = 'https://data.sec.gov/api/xbrl/companyconcept/CIK' + cikKey + '/us-gaap/CashAndCashEquivalentsAtCarryingValue.json'
 
     async function main() {
         //大事なのはhostnameの'data.sec.gov'　←ここのdata.sec.gov なのか www.sec.govなのか
@@ -234,8 +236,9 @@ router.post('/getCompany', function(req, res, next) {
                     
                     var rrr = JSON.parse(rss);
 
-                    var aa = rrr['facts']['us-gaap']['Assets']['units']['USD']
-                    var bb = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+                    var bb = rrr['units']['USD']
+                    //var aa = rrr['facts']['us-gaap']['Assets']['units']['USD']
+                    //var bb = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
 
 
                     res.json(bb);
