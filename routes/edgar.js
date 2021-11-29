@@ -249,8 +249,17 @@ router.post('/getCompany', function(req, res, next) {
                         var assets = rrr['facts']['us-gaap']['Assets']['units']['USD']
                         //当期純利益
                         var netIncome = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+                        
                         //売上
-                        var uriage = rrr['facts']['us-gaap']['RevenueFromContractWithCustomerExcludingAssessedTax']['units']['USD']
+                        var uriage;
+                        if (rrr['facts']['us-gaap']['RevenueFromContractWithCustomerExcludingAssessedTax']) {
+                            uriage = rrr['facts']['us-gaap']['RevenueFromContractWithCustomerExcludingAssessedTax']['units']['USD']
+                        }
+                        else if (rrr['facts']['us-gaap']['Revenues']) {
+                            uriage = rrr['facts']['us-gaap']['Revenues']['units']['USD']
+                        }
+                        
+                        
                         //営業利益
                         var operatingIncomeLoss = rrr['facts']['us-gaap']['OperatingIncomeLoss']['units']['USD']
 

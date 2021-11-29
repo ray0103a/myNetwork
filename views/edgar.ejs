@@ -5,8 +5,49 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <style>
+        /* ローディング画面 */
+        #loading {
+            width: 100vw;
+            height: 100vh;
+            transition: all 1s;
+            background-color: #0bd;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;    
+        }
+        .spinner {
+            width: 100px;
+            height: 100px;
+            margin: 200px auto;
+            background-color: #fff;
+            border-radius: 100%;
+            animation: sk-scaleout 1.0s infinite ease-in-out;
+        }
+        /* ローディングアニメーション */
+        @keyframes sk-scaleout {
+            0% {
+                transform: scale(0);
+            } 100% {
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }    
+
+        .loaded {
+            opacity: 0;
+            visibility: hidden;
+        }    
+    </style>
+
 </head>
 <body>
+    <div id="loading" class="loaded">
+        <div class="spinner"></div>
+    </div>
+
     <h1>財務諸表</h1>
 
     
@@ -29,7 +70,7 @@
         <label for="inputKey" class="form-label">企業一覧</label>
         <div class="row">
             <div class="col-9">
-                <select v-model="selected" class="form-select">
+                <select v-model="selected" class="form-select" id="selectBox1" disabled>
                     <option v-for="option in options" v-bind:value="option.cik_str">
                         {{ option.title }}
                     </option>
@@ -46,7 +87,7 @@
         <label for="inputKey" class="form-label">表示したい項目を選んでください</label>
         <div class="row">
             <div class="col-9">
-                <select v-model="selectKoumoku" class="form-select">
+                <select v-model="selectKoumoku" class="form-select" id="selectBox2" disabled>
                     <option v-for="option in kuomokuLists" v-bind:value="option.value">
                         {{ option.title }}
                     </option>
@@ -59,22 +100,35 @@
         </div>
 
         <br>
-        <!--
-        <div>
-            <button type="button" v-on:click="drawNetIncomeLoss" class="btn btn-primary">draw</button>
-        </div>
-        -->
 
         <!--当期純利益-->
         <div>
-            <canvas id="mychart-bar-stack" width="400" height="400"></canvas>
+            <canvas id="mychart-bar-stack" width="400" height="400" style="display:none"></canvas>
         </div>
+
+
+        <label for="inputKey" class="form-label">表示したい項目を選んでください</label>
+        <div class="row">
+            <div class="col-9">
+                <select v-model="selectKoumoku2" class="form-select" id="selectBox3" disabled>
+                    <option v-for="option in kuomokuLists2" v-bind:value="option.value">
+                        {{ option.title }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-3">
+                <button type="button" v-on:click="getKoumokuData2" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+
         <!--売上高営業利益率-->
         <div>
-            <canvas id="mychart2" width="400" height="400"></canvas>
+            <canvas id="mychartId2" width="400" height="400" style="display:none"></canvas>
         </div> 
 
-        <table class="table">
+        <!--取得したデータをテーブル表示するが、非表示にしてあるので、見たい場合はdisplay=blockに変える-->
+        <table class="table" style="display:none">
             <tr v-for="(value, key) in lists">
                 <td> {{key}} </td>
                 <td> {{value.start}} </td>
@@ -102,12 +156,16 @@
                     return {
                         selected: '',
                         selectKoumoku: '',
+                        selectKoumoku2: '',
                         options: [],
                         kuomokuLists: [
                             {"title" : "", "value" : 0},
                             {"title" : "当期純利益", "value" : 1},
                             {"title" : "売上高", "value" : 2},
-                            {"title" : "売上高営業利益率", "value" : 3},
+                        ],
+                        kuomokuLists2: [
+                            {"title" : "", "value" : 0},
+                            {"title" : "売上高営業利益率", "value" : 1},
                         ],
                         inputKey: "",
                         lists: [],
@@ -123,12 +181,18 @@
                     }
                 },
                 mounted() {
+                    /*
                     window.onload = ()=>{
 
                     }
+                    */
                 },
                 methods:{
                     getCompany:function(){
+                        //読み込み開始
+                        const spinner = document.getElementById('loading');
+                        spinner.classList.toggle('loaded');
+            
                         var a = this.inputKey;
                         var b = {"inputKey" : a};
 
@@ -157,12 +221,24 @@
                                 //var p = JSON.parse(json);
 
                                 this.options = json;
+
+                                //読み込み完了
+                                spinner.classList.toggle('loaded');
+
+                                const selectBox1 = document.getElementById('selectBox1');
+                                selectBox1.disabled = false;
                             }) 
                             .catch(function (error) {
                                 alert(error);
                             });    
+
+
                     },
                     getCompanyData:function(){
+                        //読み込み開始
+                        const spinner = document.getElementById('loading');
+                        spinner.classList.toggle('loaded');
+
                         var cik = this.selected;
                         var b = {"cik" : cik};
 
@@ -212,11 +288,18 @@
                                 //資産
                                 var assetsArray = this.myJsonToArray(json.Assets);
 
-
+                                //読み込み完了
+                                spinner.classList.toggle('loaded');
+                                const selectBox2 = document.getElementById('selectBox2');
+                                const selectBox3 = document.getElementById('selectBox3');
+                                selectBox2.disabled = false;
+                                selectBox3.disabled = false;
                             }) 
                             .catch(function (error) {
                                 alert(error);
                             });   
+
+
                     },
                     getKoumokuData:function(){
                         var sel = this.selectKoumoku;
@@ -272,10 +355,36 @@
                             var ti = function(){
                                 this.drawOresen();
                                 //this.drawTateOresen();
+                                document.getElementById("mychart-bar-stack").style.display ="block";
                             }.bind(this);
                             setTimeout(ti, 1500);
                         }
-                        else if (graFlg == 2) {
+                    },
+                    getKoumokuData2:function(){
+                        var sel = this.selectKoumoku2;
+
+                        //選択されていない場合
+                        if (sel == 0) {
+                            return;
+                        }
+
+                        var yearLists = [];
+                        var valLists = [];
+                        var barValLists = [];
+                        var targetLists;
+
+                        var graFlg = 0;
+
+                        //売上高営業利益率(複合)
+                        if (sel == 1) {
+                            this.grafhTitle2 = "売上高営業利益率"
+                            targetLists = this.UriageLists;
+                            targetLists2 = this.EigyoRiekiLists;
+                            graFlg = 1;
+                        }
+
+                        
+                        if (graFlg == 1) {
                             //折れ線グラフと縦棒グラフ
                             var maxSize = targetLists2.length;
                             var count = 0;
@@ -335,6 +444,7 @@
                                 var ti = function(){
                                     this.drawTateOresen();
                                     //this.drawTateOresen();
+                                    document.getElementById("mychartId2").style.display ="block";
                                 }.bind(this);
                                 setTimeout(ti, 1500);
                             }
@@ -392,7 +502,7 @@
                         }
                     },
                     drawTateOresen:function(){
-                        var ctx3 = document.getElementById('mychart2');
+                        var ctx3 = document.getElementById('mychartId2');
                         
                         //alert(z);
                         if (myChart2) {
