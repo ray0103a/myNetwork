@@ -11,7 +11,7 @@
 
     
     <div id="app">
-        <label for="inputKey" class="form-label">会社名を入力してください(英語)</label>
+        <label for="inputKey" class="form-label">企業名を入力してください(英語)</label>
 
         <div class="row">
             <div class="col-9">
@@ -26,6 +26,7 @@
 
         <br>
 
+        <label for="inputKey" class="form-label">企業一覧</label>
         <div class="row">
             <div class="col-9">
                 <select v-model="selected" class="form-select">
@@ -40,8 +41,38 @@
             </div>
         </div>
 
-        <button type="button" v-on:click="drawNetIncomeLoss" class="btn btn-primary">draw</button>
-        <canvas id="mychart-bar-stack" width="400" height="400"></canvas>
+        <br>
+
+        <label for="inputKey" class="form-label">表示したい項目を選んでください</label>
+        <div class="row">
+            <div class="col-9">
+                <select v-model="selectKoumoku" class="form-select">
+                    <option v-for="option in kuomokuLists" v-bind:value="option.value">
+                        {{ option.title }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-3">
+                <button type="button" v-on:click="getKoumokuData" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+
+        <br>
+        <!--
+        <div>
+            <button type="button" v-on:click="drawNetIncomeLoss" class="btn btn-primary">draw</button>
+        </div>
+        -->
+
+        <!--当期純利益-->
+        <div>
+            <canvas id="mychart-bar-stack" width="400" height="400"></canvas>
+        </div>
+        <!--売上高営業利益率-->
+        <div>
+            <canvas id="mychart2" width="400" height="400"></canvas>
+        </div> 
 
         <table class="table">
             <tr v-for="(value, key) in lists">
@@ -62,6 +93,7 @@
     <script src="/javascripts/myCommon.js"></script>
 
     <script>
+        var myChart1;
         var myChart2;
 
         Vue.createApp({
@@ -69,11 +101,25 @@
                 data() {
                     return {
                         selected: '',
+                        selectKoumoku: '',
                         options: [],
+                        kuomokuLists: [
+                            {"title" : "", "value" : 0},
+                            {"title" : "当期純利益", "value" : 1},
+                            {"title" : "売上高", "value" : 2},
+                            {"title" : "売上高営業利益率", "value" : 3},
+                        ],
                         inputKey: "",
                         lists: [],
-                        NetIncomeYearLists: [],
+                        pubYearLists: [],
+                        pubValLists: [],
+                        pubBarValLists: [],
                         NetIncomeLists: [],
+                        UriageLists: [],
+                        EigyoRiekiLists: [],
+                        grafhTitle : '',
+                        grafhTitle2 : '',
+                        grafhMax : '',
                     }
                 },
                 mounted() {
@@ -149,97 +195,178 @@
                                     return;
                                 }
 
-                                var NetJson = [];
-                                this.NetIncomeYearLists = [];
-                                this.NetIncomeLists = [];
 
+
+                                //テーブル表示用・・・そのうち消す・・・？
                                 this.lists = json.NetIncomeLoss;
 
-                                for (i = 0; i < json.NetIncomeLoss.length; i++) {
-                                    var st = json.NetIncomeLoss[i].start;
-                                    var en = json.NetIncomeLoss[i].end;
-                                    var val = json.NetIncomeLoss[i].val;
-                                    var fp = json.NetIncomeLoss[i].fp;
-                                    var form = json.NetIncomeLoss[i].form;
 
-                                    var yyyy = st.substring(0,4);
-                                    var mm = st.substring(5,7);
-                                    var dd = st.substring(8,10);
-                                    var date1 = new Date(yyyy, mm, dd);
 
-                                    var eyyyy = en.substring(0,4);
-                                    var emm = en.substring(5,7);
-                                    var edd = en.substring(8,10);
-                                    var date2 = new Date(eyyyy, emm, edd);
+                                //JSONを決算データに絞って抽出する
+                                //当期純利益
+                                this.NetIncomeLists = this.myJsonToArrayStEn(json.NetIncomeLoss);
+                                //売上
+                                this.UriageLists = this.myJsonToArrayStEn(json.uriage);
+                                //営業利益
+                                this.EigyoRiekiLists = this.myJsonToArrayStEn(json.operatingIncomeLoss);
+                                //資産
+                                var assetsArray = this.myJsonToArray(json.Assets);
 
-                                    var termDay = (date2 - date1) / 86400000;
-                                    var checkForm = form.substring(0,4);
 
-                                    //単位を(100万ドル)に変換
-                                    val = val / 1000000;
-
-                                    //if (fp == 'Q1' || fp == 'Q2' || fp == 'Q3' || fp == 'FY') {
-                                    if (checkForm == '10-K') {
-                                        //if (termDay > 80 && termDay < 100) {
-                                        if (termDay > 355) {
-                                            var addData = eyyyy + checkForm;
-
-                                            var myFlg = false;
-                                            NetJson.find(x => {
-                                                if (x.date ==  addData){
-                                                    x.val = val
-                                                    myFlg = true;
-                                                };
-                                            });
-
-                                            if (!myFlg) {
-                                                var newData = {date: addData, val: val}
-                                                NetJson.push(newData);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                var a = [];
-                                var b = [];
-
-                                for (z = 0; z < NetJson.length; z++) {
-                                    a.push(NetJson[z].date);
-                                    b.push(NetJson[z].val);
-                                }
-                                this.NetIncomeYearLists.push(a);
-                                this.NetIncomeLists.push(b);
-                                
                             }) 
                             .catch(function (error) {
                                 alert(error);
                             });   
+                    },
+                    getKoumokuData:function(){
+                        var sel = this.selectKoumoku;
+
+                        //選択されていない場合
+                        if (sel == 0) {
+                            return;
+                        }
+
+                        var yearLists = [];
+                        var valLists = [];
+                        var barValLists = [];
+                        var targetLists;
+
+                        var graFlg = 0;
+
+                        //当期純利益
+                        if (sel == 1) {
+                            this.grafhTitle = "当期純利益(単位:100万ドル)"
+                            targetLists = this.NetIncomeLists;
+                            graFlg = 1;
+                        }
+                        //売上高
+                        if (sel == 2) {
+                            this.grafhTitle = "売上高(単位:100万ドル)"
+                            targetLists = this.UriageLists;
+                            graFlg = 1;
+                        }
+
+                        //売上高営業利益率(複合)
+                        if (sel == 3) {
+                            this.grafhTitle2 = "売上高営業利益率"
+                            targetLists = this.UriageLists;
+                            targetLists2 = this.EigyoRiekiLists;
+                            graFlg = 2;
+                        }
+
+                        
+                        if (graFlg == 1) {
+                            //折れ線グラフのみ
+                            for (z = 0; z < targetLists.length; z++) {
+                                yearLists.push(targetLists[z].date);
+                                valLists.push(targetLists[z].val);
+                            }
+
+                            this.pubYearLists = [];
+                            this.pubValLists = [];
+                            this.pubBarValLists = [];
+                            
+                            this.pubYearLists.push(yearLists);
+                            this.pubValLists.push(valLists);
 
                             var ti = function(){
-                                this.drawNetIncomeLoss();
+                                this.drawOresen();
+                                //this.drawTateOresen();
                             }.bind(this);
-                            setTimeout(ti, 2000);
-                        
-                    },
-                    drawNetIncomeLoss:function(){
-                        var ctx2 = document.getElementById('mychart-bar-stack');
+                            setTimeout(ti, 1500);
+                        }
+                        else if (graFlg == 2) {
+                            //折れ線グラフと縦棒グラフ
+                            var maxSize = targetLists2.length;
+                            var count = 0;
 
-                        var z = this.NetIncomeLists;
+                            this.pubYearLists = [];
+                            this.pubValLists = [];
+                            this.pubBarValLists = [];
+                            this.grafhMax = 0;
+
+                            //二つの要素の配列サイズ(年数の持ってるデータ量)が違うため、揃えてから処理を行う
+                            if (targetLists.length < targetLists2.length) {
+                                maxSize = targetLists.length;
+
+                                for (i = 0; i < targetLists2.length; i++) {
+                                    if (targetLists2[i].date == targetLists[0].date) {
+                                        count = i;
+                                        break;
+                                    }
+                                }
+
+
+
+                                for (j = 0; j < maxSize; j++) {
+                                    var eigyoRieki = targetLists2[count + j];
+                                    var uriage = targetLists[j];
+
+                                    //売上高営業利益率を求める
+                                    var uriEigyoRieki = eigyoRieki.val / uriage.val * 100;
+                                    
+                                    if (eigyoRieki.date == uriage.date) {
+                                        //日付を追加
+                                        yearLists.push(eigyoRieki.date);
+
+                                        //営業利益を追加
+                                        valLists.push(eigyoRieki.val);
+
+                                        //売上高を追加
+                                        barValLists.push(uriage.val);
+
+                                        if (this.grafhMax < uriage.val) {
+                                            this.grafhMax = uriage.val;
+                                        }
+                                    } else {
+                                        alert('日付のアンマッチのため、処理を中止します。')
+                                        return;
+                                    }
+                                }
+
+                                this.pubYearLists.push(yearLists);
+                                this.pubValLists.push(valLists);
+                                this.pubBarValLists.push(barValLists);
+
+                                //グラフの表示上の最大値を微調整
+                                this.grafhMax = this.grafhMax + 20000;
+
+                                //グラフの描画
+                                var ti = function(){
+                                    this.drawTateOresen();
+                                    //this.drawTateOresen();
+                                }.bind(this);
+                                setTimeout(ti, 1500);
+                            }
+                            else {
+                                for (i = 0; i < targetLists.length; i++) {
+                                    if (targetLists[i].date == targetLists2[0].date) {
+                                        count = i;
+                                        break;
+                                    }
+                                }
+                            }
+
+
+                        }
+
+                    },
+                    drawOresen:function(){
+                        var ctx2 = document.getElementById('mychart-bar-stack');
                         
-                        //alert(z);
-                        if (myChart2) {
-                            myChart2.destroy();
+                        if (myChart1) {
+                            myChart1.destroy();
                         }
 
                         try {
-                            myChart2 = new Chart(ctx2, {
+                            myChart1 = new Chart(ctx2, {
                                 type: 'line',
                                 data: {
-                                    labels: this.NetIncomeYearLists[0],
+                                    labels: this.pubYearLists[0],
                                     datasets: [
                                         {
                                             label: "系列Ａ",                      // 系列名
-                                            data: this.NetIncomeLists[0],           // 系列Ａのデータ
+                                            data: this.pubValLists[0],           // 系列Ａのデータ
                                             tension: 0.5,                         // ★　グラフの線、０ 直線,  ＞０ 曲線
                                             fill: true,                           // ★　線とＸ軸で囲まれた範囲の描画 true する, false しない 
                                             backgroundColor: "rgba(255,0,0,0.2)", // ★　その範囲の色 fill: false のとき不要
@@ -253,25 +380,192 @@
                                     title: {                                             // タイトル表示
                                         display: true,
                                         fontSize: 18,
-                                        text: "当期純利益(単位:100万ドル)"
+                                        text: this.grafhTitle
                                     },
                                     legend: {                                            // 凡例非表示
                                         display: false,
                                     }
                                 }
                             });
-                        
-
                         } catch( e ) {
                             alert(e);
+                        }
+                    },
+                    drawTateOresen:function(){
+                        var ctx3 = document.getElementById('mychart2');
                         
-
+                        //alert(z);
+                        if (myChart2) {
+                            myChart2.destroy();
                         }
 
+                        try {
 
+                            var a = this.pubValLists[0];
+
+                            myChart2 = new Chart(ctx3, {
+                                type: 'bar',
+                                data: {
+                                    labels: this.pubYearLists[0],
+                                    datasets: [{
+                                        label: '営業利益',
+                                        type: "line",
+                                        fill: false,
+                                        data: this.pubValLists[0],
+                                        borderColor: "rgb(154, 162, 235)",
+                                        yAxisID: "y-axis-1",
+                                    }, /*{
+                                        label: '折れ線B',
+                                        type: "line",
+                                        fill: false,
+                                        data: [8000, 9000, 10000, 9000, 6000, 8000, 7000],
+                                        borderColor: "rgb(54, 162, 235)",
+                                        yAxisID: "y-axis-1",
+                                    },*/ {
+                                        label: '売上高',
+                                        data: this.pubBarValLists[0],
+                                        borderColor: "rgb(255, 99, 132)",
+                                        backgroundColor: "rgba(255, 99, 132, 0.2)",
+                                        yAxisID: "y-axis-2",
+                                    }]
+                                },
+                                options: {
+                                    title: {                                             // タイトル表示
+                                        display: true,
+                                        fontSize: 18,
+                                        text: this.grafhTitle2
+                                    },
+                                    tooltips: {
+                                        mode: 'nearest',
+                                        intersect: false,
+                                    },
+                                    responsive: true,
+                                    scales: {
+                                        yAxes: [{
+                                            id: "y-axis-1",
+                                            type: "linear",
+                                            position: "left",
+                                            ticks: {
+                                                max: this.grafhMax,
+                                                min: 0,
+                                                stepSize: 20000
+                                            },
+                                        }, {
+                                            id: "y-axis-2",
+                                            type: "linear",
+                                            position: "right",
+                                            ticks: {
+                                                max: this.grafhMax,
+                                                min: 0,
+                                                stepSize: 20000
+                                            },
+                                            gridLines: {
+                                                drawOnChartArea: false,
+                                            },
+                                        }],
+                                    },
+                                }
+                            });
+                        } catch( e ) {
+                            alert(e);
+                        }
                     },
-                    test222:function(){
+                    myJsonToArrayStEn : function(targetJson){
+                        var rtArray = [];
 
+                        for (i = 0; i < targetJson.length; i++) {
+                            //各データを取得する
+                            var st = targetJson[i].start;
+                            var en = targetJson[i].end;
+                            var val = targetJson[i].val;
+                            var fp = targetJson[i].fp;
+                            var form = targetJson[i].form;
+
+                            //開始日付を取得・変換する
+                            var yyyy = st.substring(0,4);
+                            var mm = st.substring(5,7);
+                            var dd = st.substring(8,10);
+                            var date1 = new Date(yyyy, mm, dd);
+
+                            //終了日付を取得・変換する
+                            var eyyyy = en.substring(0,4);
+                            var emm = en.substring(5,7);
+                            var edd = en.substring(8,10);
+                            var date2 = new Date(eyyyy, emm, edd);
+
+                            //86400000で割ることで日数を求める
+                            var termDay = (date2 - date1) / 86400000;
+
+                            var checkForm = form.substring(0,4);
+
+                            //単位を(100万ドル)に変換
+                            val = val / 1000000;
+
+                            //if (fp == 'Q1' || fp == 'Q2' || fp == 'Q3' || fp == 'FY') {
+                            if (checkForm == '10-K') {
+                                //if (termDay > 80 && termDay < 100) {
+                                if (termDay > 355) {
+                                    var addData = eyyyy;// + checkForm;
+
+                                    //同じ年数のデータは後から出てきた数値で上書きする
+                                    var myFlg = false;
+                                    rtArray.find(x => {
+                                        if (x.date ==  addData){
+                                            x.val = val
+                                            myFlg = true;
+                                        };
+                                    });
+
+                                    if (!myFlg) {
+                                        var newData = {date: addData, val: val}
+                                        rtArray.push(newData);
+                                    }
+                                }
+                            }
+                        }
+                        return rtArray;
+                    },
+                    myJsonToArray : function(targetJson){
+                        var rtArray = [];
+
+                        for (i = 0; i < targetJson.length; i++) {
+                            //各データを取得する
+                            var en = targetJson[i].end;
+                            var val = targetJson[i].val;
+                            var fp = targetJson[i].fp;
+                            var form = targetJson[i].form;
+
+                            //終了日付を取得・変換する
+                            var eyyyy = en.substring(0,4);
+                            var emm = en.substring(5,7);
+                            var edd = en.substring(8,10);
+                            var date2 = new Date(eyyyy, emm, edd);
+
+                            var checkForm = form.substring(0,4);
+
+                            //単位を(100万ドル)に変換
+                            val = val / 1000000;
+
+                            if (checkForm == '10-K') {
+                                var addData = eyyyy;// + checkForm;
+
+                                //同じ年数のデータは後から出てきた数値で上書きする
+                                var myFlg = false;
+                                rtArray.find(x => {
+                                    if (x.date ==  addData){
+                                        x.val = val
+                                        myFlg = true;
+                                    };
+                                });
+
+                                if (!myFlg) {
+                                    var newData = {date: addData, val: val}
+                                    rtArray.push(newData);
+                                }
+                                
+                            }
+                        }
+                        return rtArray;
                     },
                     test333:function(event){
                         //https://data.sec.gov/api/xbrl/companyconcept/CIK0000320193/us-gaap/AccountsPayableCurrent.json

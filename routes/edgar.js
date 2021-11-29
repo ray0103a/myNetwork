@@ -245,8 +245,14 @@ router.post('/getCompany', function(req, res, next) {
                     var netIncome;
 
                     try {
+                        //資産
                         var assets = rrr['facts']['us-gaap']['Assets']['units']['USD']
+                        //当期純利益
                         var netIncome = rrr['facts']['us-gaap']['NetIncomeLoss']['units']['USD']
+                        //売上
+                        var uriage = rrr['facts']['us-gaap']['RevenueFromContractWithCustomerExcludingAssessedTax']['units']['USD']
+                        //営業利益
+                        var operatingIncomeLoss = rrr['facts']['us-gaap']['OperatingIncomeLoss']['units']['USD']
 
                         if (!assets) {
                             //CNYが何かわからないので、エラー処理として現状は処理する
@@ -257,6 +263,8 @@ router.post('/getCompany', function(req, res, next) {
                         else {
                             rtJsonList.Assets = assets;
                             rtJsonList.NetIncomeLoss = netIncome;
+                            rtJsonList.uriage = uriage;
+                            rtJsonList.operatingIncomeLoss = operatingIncomeLoss;
                         }
                     } catch (error) {
                         rtJsonList.Not = '{data : NotFoundDayo}'
