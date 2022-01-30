@@ -95,7 +95,10 @@ passport.deserializeUser(function(user, done) {
 });
 //passportここまで
 
-app.use('/', indexRouter);
+//ログイン画面停止のため、ルーターを切り替え
+//app.use('/', indexRouter);
+app.use('/', todoRouter);
+
 app.use('/users', usersRouter);
 app.use('/mainMenu', mainMenuRouter);
 app.use('/qrcode', qrcodeRouter);

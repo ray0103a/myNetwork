@@ -40,8 +40,9 @@ let isLogined = function(req, res, next){
     }
 };
 
-//router.get('/', function(req, res) {
-router.get('/', isLogined, function(req, res, next) {
+//ログイン制御したい場合はコメントを切り替える
+router.get('/', function(req, res) {
+//router.get('/', isLogined, function(req, res, next) {
     const query = {
         text: 'SELECT * FROM USERS',
         values: [],
