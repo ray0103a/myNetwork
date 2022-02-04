@@ -22,6 +22,7 @@ var qrtest2Router = require('./routes/qrtest2');
 var todoRouter = require('./routes/todo');
 var kabuManagementRouter = require('./routes/kabuManagement');
 var edgarRouter = require('./routes/edgar');
+var eatMenuRouter = require('./routes/eatMenu');
 
 var app = express();
 
@@ -110,6 +111,7 @@ app.use('/barcode3', barcode3Router);
 app.use('/todo', todoRouter);
 app.use('/kabuManagement', kabuManagementRouter);
 app.use('/edgar', edgarRouter);
+app.use('/eatMenu', eatMenuRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

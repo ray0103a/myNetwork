@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.1, maximum-scale=4,user-scalable=yes">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <style>
+        ul {
+            list-style-type: none;
+        }
+        li {
+            cursor: pointer;
+            padding: 10px;
+            border: solid #ddd 1px;
+        }
+
+        .myli {
+            margin-left: 5px;
+            margin-right: 5px;
+            margin-top: 1px;
+            margin-bottom: 3px;
+            background-color: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div class="container-lg">
+            <div style="position: relative; margin-top: 10px;">
+                <h1 style="text-align: center;">献立</h1>
+                <button class="btn btn-primary" v-on:click="doAdd" style="position: absolute; top: 0px; left: 0px;">追加</button>
+                <button class="btn btn-danger" v-on:click="addItem" style="position: absolute; top: 0px; right: 0px;">登録</button>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div style="position: relative">
+                        <input type="text" class="form-control" placeholder="自由入力" v-model="myInput">
+                        
+                        <draggable class="list-group" v-model="freeLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in freeLists" :key="item.no" class="myli" style="position: relative">
+                                {{item.name}}
+                                <span class="del" v-on:click="doDelete(freeLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
+                            </li>
+                        </draggable>
+                    </div>
+                    
+                    <br>
+
+                    <select v-model="selected" class="form-select" id="selectBox1" v-on:change="changeSelectBox">
+                        <option v-for="option in kuomokuLists" v-bind:value="option.value">
+                            {{ option.title }}
+                        </option>
+                    </select>
+
+                    <div id="box1" class="box">
+                        <!--グループの書き方別パターン   :options="{group:'ITEMS'}"   -->
+                        <draggable v-model="items" :group="{ name: 'people', pull: 'clone', put: false }" @end="draggableEnd" id="myItem1">
+                            <li class="list-group list-unstyled" v-for="item, index in items" :key="item.no">{{item.name}}</li>
+                        </draggable>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <!-- テーブル実装したければコメントイン
+                    <table class="table">
+                        <tbody is="draggable" v-model="items" :options="{group:'ITEMS'}">
+                            <tr v-for="item in items" :key="item.index">
+                                <td>{{ item.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    -->
+                    
+
+                    
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px;">
+                        <h2>月曜日</h2>
+                        
+                        <draggable class="list-group" v-model="mondayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in mondayLists" :key="item.no" class="myli" style="position: relative">
+                                {{item.name}}
+                                <span class="del" v-on:click="doDelete(mondayLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
+                            </li>
+                        </draggable>
+                    </div>
+                    
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px; margin-top: 10px;">
+                        <h2>火曜日</h2>
+                        
+                        <draggable class="list-group" v-model="tuesdayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in tuesdayLists" :key="item.no" class="myli">
+                                {{item.name}}
+                            </li>
+                        </draggable>
+                    </div>
+
+                </div>
+            </div><!--row-->
+        </div><!--container-->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.8/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.23.2/vuedraggable.umd.min.js"></script>
+    <script src="/javascripts/myCommon.js"></script>
+
+    <script>
+        const draggable = window['vuedraggable'];
+
+        new Vue({ 
+            el: "#app",
+            components: {
+                'draggable': draggable,
+            },
+            data: { 
+                myInput: '',
+                selected: '',
+                freeLists: [],
+                mondayLists: [],
+                tuesdayLists: [],
+                kuomokuLists: [
+                    {"title" : "", "value" : 0},
+                    {"title" : "肉", "value" : 1},
+                    {"title" : "魚", "value" : 2},
+                ],
+                items:[], 
+            },
+            mounted() {
+                window.onload = ()=>{
+                    //URLを取得
+                    let url = getServerURL() + '/eatMenu/getItem';
+
+                    //保存したデータを取得する
+                    fetch(url,
+                        {
+                            method: 'GET',
+                            headers: {
+                                        'Content-Type': 'application/json'
+                                        },
+                        })
+                        .then((response) => {
+                            if(response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error();
+                            }
+                        })
+                        .then(json => {   
+                            var setMon = [];
+                            var setTue = [];
+
+                            var monCount = 0;
+                            var tueCount = 0;
+
+                            for (var i = 0; i < json.length; i++) {
+                                if (json[i].week == 1) {
+                                    //月曜日(直接this.mondayListsに入れると画面に反映されない..なぜだろう？そのため、一度変数に落としている)
+                                    setMon[monCount] = {
+                                        no : json[i].no,
+                                        name : json[i].name,
+                                        week : json[i].week,
+                                    }
+                                    monCount++;
+                                }
+                                if (json[i].week == 2) {
+                                    //火曜日
+                                    setTue[tueCount] = {
+                                        no : json[i].no,
+                                        name : json[i].name,
+                                        week : json[i].week,
+                                    }
+                                    tueCount++;
+                                }
+                            }
+
+                            this.mondayLists = setMon;
+                            this.tuesdayLists = setTue;
+                        }) 
+                        .catch(function (error) {
+                            alert(error);
+                        });    
+                }
+            },
+            methods: {
+                changeSelectBox() {
+                    if (this.selected == 0) {
+                        //alert("未選択が選択されたよ")
+                    } else {
+                        //URLを取得
+                        let url = getServerURL() + '/eatMenu/getCategory';
+
+                        var json = {data: this.selected};
+
+                        //サーバーにデータを追加する
+                        fetch(url,
+                            {
+                                method: 'POST',
+                                headers: {
+                                            'Content-Type': 'application/json'
+                                            },
+                                //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                                body: JSON.stringify(json)
+                            })
+                            .then((response) => {
+                                if(response.ok) {
+                                    return response.json();
+                                } else {
+                                    alert('エラーが発生しました。管理者へ連絡してください。')
+                                    throw new Error();
+                                }
+                            })
+                            .then(json => {   
+                                var a = json;
+                                this.items = json;
+                            }) 
+                            .catch(function (error) {
+                                //alert(error);
+                            });     
+                    }
+                },
+                draggableEnd(event) {
+                    console.log(event)
+                    //this.items = 
+                },
+                doAdd:function(){
+                    this.freeLists.push(
+                    {
+                        no: 1,
+                        name: this.myInput,
+                    })
+                },
+                doDelete: function(delItems, index){
+                    delItems.splice(index, 1);
+                },
+                addWeekData: function(json, list, num) {
+                    for (var i = 0; i < list.length; i++){
+                        var addData = {
+                            week: num,
+                            no: i,
+                            data: list[i].name
+                        };
+                        json.push(addData);
+                    }
+
+                    return json;
+                },
+                addItem:function(event){
+                    var json = [];
+
+                    //曜日データを追加
+                    json = this.addWeekData(json, this.mondayLists, 1);
+                    json = this.addWeekData(json, this.tuesdayLists, 2);
+
+                    //URLを取得
+                    let url = getServerURL() + '/eatMenu/insData';
+
+                    //サーバーにデータを追加する
+                    fetch(url,
+                        {
+                            method: 'POST',
+                            headers: {
+                                        'Content-Type': 'application/json'
+                                        },
+                            //★JSON形式で通信する指定があるので、JSONでなければ渡せない
+                            body: JSON.stringify(json)
+                        })
+                        .then((response) => {
+                            if(response.ok) {
+                                //this.todos.push(todo);
+                                //サーバーの最新情報を取得する
+                                this.getItem();
+                                this.newItem = '' //タスク追加後に入力欄を空にする
+                            } else {
+                                alert('エラーが発生しました。管理者へ連絡してください。')
+                                throw new Error();
+                            }
+                        })
+                        .then(json => {   
+
+                        }) 
+                        .catch(function (error) {
+                            //alert(error);
+                        });    
+                },
+            }
+        });
+    </script>
+  </body>
+</html>
