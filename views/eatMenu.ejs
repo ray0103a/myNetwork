@@ -31,7 +31,8 @@
             <div style="position: relative; margin-top: 10px;">
                 <h1 style="text-align: center;">献立</h1>
                 <button class="btn btn-primary" v-on:click="doAdd" style="position: absolute; top: 0px; left: 0px;">追加</button>
-                <button class="btn btn-danger" v-on:click="addItem" style="position: absolute; top: 0px; right: 0px;">登録</button>
+                <button class="btn btn-success" v-on:click="addItem" style="position: absolute; top: 0px; right: 0px;">登録</button>
+                <button class="btn btn-danger" v-on:click="deleteAll" style="position: absolute; top: 0px; right: 70px;">一括削除</button>
             </div>
 
             <div class="row">
@@ -58,7 +59,7 @@
                     <div id="box1" class="box">
                         <!--グループの書き方別パターン   :options="{group:'ITEMS'}"   -->
                         <draggable v-model="items" :group="{ name: 'people', pull: 'clone', put: false }" @end="draggableEnd" id="myItem1">
-                            <li class="list-group list-unstyled" v-for="item, index in items" :key="item.no">{{item.name}}</li>
+                            <li class="list-group list-unstyled" v-for="item, index in items" :key="item.no" style="padding-left: 10px;">{{item.name}}</li>
                         </draggable>
                     </div>
                 </div>
@@ -85,17 +86,52 @@
                             </li>
                         </draggable>
                     </div>
-                    
-                    <div style="background-color: rgb(199, 240, 231); padding: 3px; margin-top: 10px;">
+
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px;">
                         <h2>火曜日</h2>
                         
                         <draggable class="list-group" v-model="tuesdayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
-                            <li v-for="item, index in tuesdayLists" :key="item.no" class="myli">
+                            <li v-for="item, index in tuesdayLists" :key="item.no" class="myli" style="position: relative">
                                 {{item.name}}
+                                <span class="del" v-on:click="doDelete(tuesdayLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
+                            </li>
+                        </draggable>
+                    </div>
+                    
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px;">
+                        <h2>水曜日</h2>
+                        
+                        <draggable class="list-group" v-model="wednesdayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in wednesdayLists" :key="item.no" class="myli" style="position: relative">
+                                {{item.name}}
+                                <span class="del" v-on:click="doDelete(wednesdayLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
                             </li>
                         </draggable>
                     </div>
 
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px;">
+                        <h2>木曜日</h2>
+                        
+                        <draggable class="list-group" v-model="thursdayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in thursdayLists" :key="item.no" class="myli" style="position: relative">
+                                {{item.name}}
+                                <span class="del" v-on:click="doDelete(thursdayLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
+                            </li>
+                        </draggable>
+                    </div>
+
+                    <div style="background-color: rgb(199, 240, 231); padding: 3px;">
+                        <h2>金曜日</h2>
+                        
+                        <draggable class="list-group" v-model="fridayLists" tag="ul" :group="{ name: 'people', pull: true, put: true }" @end="draggableEnd">
+                            <li v-for="item, index in fridayLists" :key="item.no" class="myli" style="position: relative">
+                                {{item.name}}
+                                <span class="del" v-on:click="doDelete(fridayLists, index, '')" style="position: absolute; right: 10px; color: #f00;">[削除]</span>
+                            </li>
+                        </draggable>
+                    </div>
+
+                    <br><br>
                 </div>
             </div><!--row-->
         </div><!--container-->
@@ -120,6 +156,9 @@
                 freeLists: [],
                 mondayLists: [],
                 tuesdayLists: [],
+                wednesdayLists: [],
+                thursdayLists: [],
+                fridayLists: [],
                 kuomokuLists: [
                     {"title" : "", "value" : 0},
                     {"title" : "肉", "value" : 1},
@@ -150,9 +189,15 @@
                         .then(json => {   
                             var setMon = [];
                             var setTue = [];
+                            var setWed = [];
+                            var setThu = [];
+                            var setFri = [];
 
                             var monCount = 0;
                             var tueCount = 0;
+                            var wedCount = 0;
+                            var thuCount = 0;
+                            var friCount = 0;
 
                             for (var i = 0; i < json.length; i++) {
                                 if (json[i].week == 1) {
@@ -173,10 +218,40 @@
                                     }
                                     tueCount++;
                                 }
+                                if (json[i].week == 3) {
+                                    //水曜日
+                                    setWed[wedCount] = {
+                                        no : json[i].no,
+                                        name : json[i].name,
+                                        week : json[i].week,
+                                    }
+                                    wedCount++;
+                                }
+                                if (json[i].week == 4) {
+                                    //木曜日
+                                    setThu[thuCount] = {
+                                        no : json[i].no,
+                                        name : json[i].name,
+                                        week : json[i].week,
+                                    }
+                                    thuCount++;
+                                }
+                                if (json[i].week == 5) {
+                                    //金曜日
+                                    setFri[friCount] = {
+                                        no : json[i].no,
+                                        name : json[i].name,
+                                        week : json[i].week,
+                                    }
+                                    friCount++;
+                                }
                             }
 
                             this.mondayLists = setMon;
                             this.tuesdayLists = setTue;
+                            this.wednesdayLists = setWed;
+                            this.thursdayLists = setThu;
+                            this.fridayLists = setFri;
                         }) 
                         .catch(function (error) {
                             alert(error);
@@ -186,7 +261,7 @@
             methods: {
                 changeSelectBox() {
                     if (this.selected == 0) {
-                        //alert("未選択が選択されたよ")
+                        this.items = [];
                     } else {
                         //URLを取得
                         let url = getServerURL() + '/eatMenu/getCategory';
@@ -224,6 +299,17 @@
                     console.log(event)
                     //this.items = 
                 },
+                deleteAll: function() {
+                    var result = window.confirm("全て削除しますが、よろしいですか？\n\n※サーバーのデータは消えません。");
+
+                    if (result) {
+                        this.mondayLists = [];
+                        this.tuesdayLists = [];
+                        this.wednesdayLists = [];
+                        this.thursdayLists = [];
+                        this.fridayLists = [];
+                    }
+                },
                 doAdd:function(){
                     this.freeLists.push(
                     {
@@ -252,6 +338,9 @@
                     //曜日データを追加
                     json = this.addWeekData(json, this.mondayLists, 1);
                     json = this.addWeekData(json, this.tuesdayLists, 2);
+                    json = this.addWeekData(json, this.wednesdayLists, 3);
+                    json = this.addWeekData(json, this.thursdayLists, 4);
+                    json = this.addWeekData(json, this.fridayLists, 5);
 
                     //URLを取得
                     let url = getServerURL() + '/eatMenu/insData';
@@ -268,12 +357,9 @@
                         })
                         .then((response) => {
                             if(response.ok) {
-                                //this.todos.push(todo);
-                                //サーバーの最新情報を取得する
-                                this.getItem();
-                                this.newItem = '' //タスク追加後に入力欄を空にする
+                                alert('登録しました。');
                             } else {
-                                alert('エラーが発生しました。管理者へ連絡してください。')
+                                alert('エラーが発生しました。管理者へ連絡してください。');
                                 throw new Error();
                             }
                         })
