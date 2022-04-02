@@ -23,6 +23,8 @@ var todoRouter = require('./routes/todo');
 var kabuManagementRouter = require('./routes/kabuManagement');
 var edgarRouter = require('./routes/edgar');
 var eatMenuRouter = require('./routes/eatMenu');
+var topPageRouter = require('./routes/topPage');
+
 
 var app = express();
 
@@ -98,7 +100,7 @@ passport.deserializeUser(function(user, done) {
 
 //ログイン画面停止のため、ルーターを切り替え
 //app.use('/', indexRouter);
-app.use('/', todoRouter);
+app.use('/', topPageRouter);
 
 app.use('/users', usersRouter);
 app.use('/mainMenu', mainMenuRouter);
@@ -112,6 +114,7 @@ app.use('/todo', todoRouter);
 app.use('/kabuManagement', kabuManagementRouter);
 app.use('/edgar', edgarRouter);
 app.use('/eatMenu', eatMenuRouter);
+app.use('/topPage', topPageRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
