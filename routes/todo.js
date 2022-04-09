@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const path = require('path');
-var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
+//var myServer = require(path.resolve() + '/public/javascripts/myServer.js');
+var myServer = require('../public/javascripts/myServer.js');
 const fs = require('fs');
 const { Client } = require('pg');
 

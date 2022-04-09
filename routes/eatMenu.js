@@ -1,7 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var path = require('path');
-var myPost = require(path.resolve() + '/public/javascripts/postgres.js');
+//var myPost = require(path.resolve() + '/public/javascripts/postgres.js');
+var myPost = require('../public/javascripts/postgres.js');
 const { Client } = require('pg');
 
 /* GET home page. */
